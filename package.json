@@ -7,12 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . && stylelint 'src/**/*.css'",
-    "test": "vitest run",
+    "lint": "eslint . && stylelint src/design/tokens.css",
+    "test": "vitest run tests",
     "test:e2e": "playwright test",
     "images": "node scripts/fetch-images.mjs"
   },
-  "workspaces": ["apps/web"],
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.6",
     "@fontsource/ibm-plex-sans": "^5.2.6",

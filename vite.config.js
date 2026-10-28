@@ -17,4 +17,15 @@ function includes() {
   };
 }
 
-export default defineConfig({ plugins: [includes()], build: { target: 'es2022' } });
+export default defineConfig({
+  plugins: [includes()],
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.GM_PLATFORM_URL || 'http://127.0.0.1:8082',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: { target: 'es2022' },
+});

@@ -24,16 +24,6 @@ services:
       - ./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
     ports:
       - "127.0.0.1:51883:1883"
-  identity:
-    image: quay.io/keycloak/keycloak:26.2
-    command: start-dev --import-realm
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?Set local identity admin}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD:?Set local identity password}
-    volumes:
-      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
-    ports:
-      - "127.0.0.1:58080:8080"
   gateway:
     build: ../services/gateway-go
     environment:
@@ -46,8 +36,11 @@ services:
     environment:
       GM_PLATFORM_MODE: development
       GM_HTTP_ADDR: :8082
-      GM_OIDC_ISSUER: http://identity:8080/realms/gm
-    depends_on: [identity, postgres-platform]
+      SUPABASE_URL: ${SUPABASE_URL:?Set SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:?Set SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      GM_PUBLIC_URL: ${GM_PUBLIC_URL:-http://localhost:5173}
+    depends_on: [postgres-platform]
     ports:
       - "127.0.0.1:58082:8082"
   insight:

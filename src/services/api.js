@@ -18,3 +18,7 @@ export const resolveAlert = (id, reason) => request(`/alerts/${encodeURIComponen
 export const createRevealGrant = (id, purpose) => request(`/registry/${encodeURIComponent(id)}/reveal-grants`, { method: 'POST', body: JSON.stringify({ purpose }) });
 export const revealIdentity = (id, grant, challenge) => request(`/registry/${encodeURIComponent(id)}/reveal`, { method: 'POST', body: JSON.stringify({ grant, challenge }) });
 export const exportAdam = () => request('/adam/exports', { method: 'POST' });
+export const inviteUser = (email, role, sites) => request('/admin/users/invite', {
+  method: 'POST',
+  body: JSON.stringify({ email, role, sites }),
+});

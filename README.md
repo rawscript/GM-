@@ -1,50 +1,78 @@
 # GM System monorepo
 
-The GM System is designed as a screening, monitoring and triage aid. It does not diagnose. Laboratory confirmation remains with national laboratories. Wrist temperature is skin temperature and is shown as a trend against an individual baseline. Electronic-nose data stays in shadow-mode research and cannot alter decisions. ADaM owns official outbreak cases and status.
+The GM System is a screening, monitoring and triage aid. It does not diagnose; laboratory confirmation remains with national laboratories. ADaM owns the official outbreak case and status.
 
 ## Repository map
 
-- `apps/web` is the frontend package boundary. Its current source remains in `src` during the migration; the browser console uses `/api/v1`, OIDC redirect endpoints, same-site cookies and server-sent events.
+- `src` is the Vite frontend (also identified as the `apps/web` package boundary).
+- `services/platform-go` is the platform API and Supabase authentication boundary.
 - `services/gateway-go` is the device ingestion boundary.
-- `services/platform-go` is the patient, alert, laboratory, audit and console API boundary.
-- `services/registry-go` is the isolated identity registry boundary and fails closed without key management configuration.
-- `services/adam-adapter-go` is the ADaM export and notification boundary. Monitoring links and profile control remain gated on interface confirmation.
-- `services/insight-py` contains de-identified aggregate logic and small-cell suppression. Learned risk scoring is not implemented.
-- `contracts` is the source for REST, event and gRPC interfaces.
-- `infra` contains local Compose, migrations and Kubernetes starting manifests.
-- `compliance` contains control evidence, approval gates, processing records, threat and risk artefacts.
-- `tools` contains contract checks and repository tools.
+- `services/registry-go` is the isolated identity registry boundary.
+- `services/adam-adapter-go` is the ADaM export and notification boundary.
+- `services/insight-py` contains de-identified aggregate logic.
+- `contracts` contains REST, event and gRPC interfaces; `infra` contains local Compose, migrations and Kubernetes starting manifests.
+- `compliance` contains control evidence, approval gates and risk artefacts.
 
-Each service has its own module and README. Services must communicate through versioned contracts, not imports. Generated code is reproducible and must not be hand edited.
+## Run the frontend and backend locally
 
-## Local setup
+### Prerequisites
 
-Install Node.js 22, Go 1.23+, Python 3.12+, Docker Compose and Buf. Install JavaScript dependencies with `npm install`. Create an untracked `.env` containing `GM_PLATFORM_DB_PASSWORD`, `GM_REGISTRY_DB_PASSWORD`, `KEYCLOAK_ADMIN` and `KEYCLOAK_PASSWORD`. Start infrastructure using `docker compose -f infra/compose.yaml up --build`. Configure local development issuer, device certificates, broker credentials and encryption adapter before exercising protected service routes. The registry and ADaM adapter intentionally do not start as operational services without encryption and integration configuration.
+Install Node.js 22+, Go 1.23+ and Git. The local dashboard sign-in uses the configured Supabase project; the API data endpoints are still service skeletons.
 
-## Contract workflow
+1. From the repository root, create a local environment file and fill in the service-role key from your secure local secret store:
 
-Edit the OpenAPI, JSON Schema or protobuf source under `contracts`; run `buf lint contracts` and `python tools/check_contracts.py`; regenerate clients with `buf generate contracts` and the service-specific OpenAPI generators once pinned generator configuration is added. Review compatibility with `buf breaking` before merging. Do not edit generated files.
+   ```powershell
+   Copy-Item .env.example .env.local
+   notepad .env.local
+   ```
 
-## Add an endpoint
+   `SUPABASE_URL` and `SUPABASE_ANON_KEY` are prefilled with the project URL and public anon key. Put the service-role key you supplied in `SUPABASE_SERVICE_ROLE_KEY` only in this untracked local file. The service-role key is server-only and must never be added to `VITE_*` variables, frontend source, screenshots, logs or commits. Password sign-in uses the anon key; it does not require the service-role key.
 
-Add the API definition to `contracts/openapi`, regenerate clients, implement a use case under the service application layer, define ports for persistence or external systems, implement adapters, then add role, site, schema and audit tests. Keep HTTP transport and RFC 9457 error mapping in the API adapter.
+2. Start the Go API in a PowerShell terminal:
 
-## Add an event
+   ```powershell
+   Get-Content .env.local | Where-Object { $_ -match '^\s*[^#][^=]*=' } | ForEach-Object { $name, $value = $_.Split('=', 2); [Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim(), 'Process') }
+   Set-Location services/platform-go
+   $env:GM_HTTP_ADDR = ':8082'
+   go run ./cmd/platform
+   ```
 
-Define the JSON Schema under `contracts/events` with `additionalProperties: false`, a unique message identifier, original event time and receipt time as appropriate. Wearable events carry summaries, sequence numbers, signal quality and baseline deviation. Raw sensor streams and identity details do not enter shared events.
+   The API listens on `http://127.0.0.1:8082`. Check it with `Invoke-WebRequest http://127.0.0.1:8082/health`.
 
-## Add a rule
+3. In a second PowerShell terminal at the repository root, install dependencies and start Vite:
 
-Implement a pure domain rule with an explicit configuration version, typed input and output, then add exhaustive transition and property tests. Clinical thresholds require a signed, versioned configuration from the agreed clinical protocol. Never add a learned-risk endpoint without clinical oversight and labelled outcomes.
+   ```powershell
+   npm install
+   $env:GM_PLATFORM_URL = 'http://127.0.0.1:8082'
+   npm run dev
+   ```
 
-## Add a migration
+   Open the local URL printed by Vite. The `/api` development proxy forwards dashboard requests to the Go API. Sign in with a Supabase Auth user whose `app_metadata.role` is one of `screening_operator`, `surveillance_officer`, `clinician`, `administrator` or `auditor`; optional site scope is read from `app_metadata.sites`. Assign privileged claims through trusted Supabase administration, never from user-editable profile metadata.
 
-Create a forward migration under `infra/migrations`, test it on a seeded disposable database and rehearse rollback in staging. Audit tables are append-only to application roles. Platform and registry remain separate databases with separate credentials.
+4. In the Supabase dashboard, allow `http://localhost:5173/reset-password` and `http://localhost:5173/console` as redirect URLs for Auth email links. Set `GM_PUBLIC_URL` to the site origin used in production before deploying the backend.
 
-## Add a compliance control
+### Evergreen account invitations
 
-Add the requirement and evidence path to `compliance/control-traceability.csv`, link it to an automated test or deployment gate, and update the relevant risk, processing or DPIA artefact. Do not mark authority approval complete without documented evidence.
+`/evergreen` is intentionally omitted from navigation. Sign in with an account whose trusted `app_metadata.role` is `administrator`; the Go API independently checks that role before accepting an invitation. The page invites users by email, then assigns their selected role and optional `sites` array in Supabase `app_metadata`. Administrator accounts must be provisioned separately by a trusted operator. The Supabase service-role key is used only by the Go backend for this admin operation.
 
-## Build and verification
+Invitees and users requesting password recovery receive a one-time link to `/reset-password`, where they set a password. After setting an invitation password, the user signs in at `/console`. Forgot-password links are available from the console sign-in screen and Evergreen. Responses avoid confirming whether an email belongs to an account.
 
-`make lint`, `make test`, `make test-contract`, `make test-e2e`, `make scan` and `make up` expose repository tasks. Quality workflows run Go, Python, web and contract checks. This repository currently contains service skeletons and contract targets; real persistence, OIDC verification, mTLS ingestion, key management, FHIR profile alignment, live ADaM exchange, complete generated clients and deployment security review still require implementation and verification. No deployment, validation or regulatory approval is claimed.
+The backend keeps Supabase tokens in process memory and gives the browser only an opaque HttpOnly, SameSite cookie. Restarting the Go process ends local sessions. The current backend authenticates sessions and supports invitation and password recovery, but contacts, alerts, ADaM and other operational data routes are not implemented yet.
+
+## Optional local infrastructure
+
+PostgreSQL and the message broker can be started for work on the other service boundaries. Create local database passwords in `.env.local`, then run:
+
+```powershell
+docker compose --env-file .env.local -f infra/compose.yaml up --build
+```
+
+The Compose stack is infrastructure for development, not a production deployment. The Supabase dashboard handles identity; no local Keycloak instance is used for console authentication.
+
+## Contracts and development checks
+
+Edit OpenAPI, JSON Schema or protobuf sources under `contracts`. Run `python tools/check_contracts.py`; use `buf lint contracts` when Buf is installed. Web scripts include `npm run lint`, `npm run test` and `npm run build`.
+
+## Current implementation limits
+
+The repository still contains service skeletons. Real persistence, authorization enforcement across operational endpoints, token refresh, mTLS ingestion, key management, FHIR profile alignment, live ADaM exchange, generated clients and deployment security review require implementation and verification. No deployment, validation or regulatory approval is claimed.
