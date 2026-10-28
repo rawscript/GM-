@@ -1,0 +1,342 @@
+openapi: 3.1.0
+info:
+  title: GM Console API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /session:
+    get:
+      operationId: getSession
+      responses:
+        '200':
+          description: Authenticated session and role claims
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Problem'
+  /contacts:
+    get:
+      operationId: listContacts
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Pseudonymous contacts visible to the role and site
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+        '401':
+          $ref: '#/components/responses/Problem'
+  /alerts:
+    get:
+      operationId: listAlerts
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Alerts visible to the role and site
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+  /alerts/{id}/acknowledge:
+    post:
+      operationId: acknowledgeAlert
+      security:
+        - oidcCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reason'
+      responses:
+        '200':
+          description: Alert acknowledged and audit entry written
+  /alerts/{id}/resolve:
+    post:
+      operationId: resolveAlert
+      security:
+        - oidcCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reason'
+      responses:
+        '200':
+          description: Alert resolved and audit entry written
+  /contacts/{id}:
+    get:
+      operationId: getContact
+      security:
+        - oidcCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Pseudonymous person record and timeline
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+  /checkins:
+    get:
+      operationId: listMissedCheckins
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Missing heartbeat and device status records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+  /laboratory/specimens:
+    get:
+      operationId: listSpecimens
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Specimens and laboratory result states
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Specimen'
+  /sites:
+    get:
+      operationId: listSites
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Site health and screening summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Site'
+  /audit:
+    get:
+      operationId: listAuditEvents
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Audit records visible to the auditor role
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditEvent'
+  /adam/outbox:
+    get:
+      operationId: listAdamOutbox
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Notification outbox records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdamOutboxItem'
+  /adam/exports:
+    post:
+      operationId: createAdamExport
+      security:
+        - oidcCookie: []
+      responses:
+        '202':
+          description: Export queued after purpose and role policy checks
+  /events:
+    get:
+      operationId: streamEvents
+      security:
+        - oidcCookie: []
+      responses:
+        '200':
+          description: Resumable server-sent event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+  /registry/{id}/reveal-grants:
+    post:
+      operationId: createRevealGrant
+      security:
+        - oidcCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [purpose]
+              properties:
+                purpose:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+      responses:
+        '202':
+          description: Time-limited step-up challenge issued
+  /registry/{id}/reveal:
+    post:
+      operationId: revealIdentity
+      security:
+        - oidcCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [grant, challenge]
+              properties:
+                grant:
+                  type: string
+                challenge:
+                  type: string
+      responses:
+        '200':
+          description: Identity returned only after audit-before-release
+        '403':
+          $ref: '#/components/responses/Problem'
+components:
+  securitySchemes:
+    oidcCookie:
+      type: apiKey
+      in: cookie
+      name: gm_session
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Problem:
+      description: RFC 9457 problem response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+    Session:
+      type: object
+      required: [subject, role, sites]
+      properties:
+        subject: { type: string }
+        role: { enum: [screening_operator, surveillance_officer, clinician, administrator, auditor] }
+        sites:
+          type: array
+          items: { type: string }
+    Contact:
+      type: object
+      required: [patientId, site, status, day, lastSummaryAt, signalQuality, baselineDeviation]
+      properties:
+        patientId: { type: string }
+        site: { type: string }
+        status: { type: string }
+        day: { type: integer, minimum: 1, maximum: 21 }
+        lastSummaryAt: { type: string, format: date-time }
+        signalQuality: { enum: [good, fair, poor, gap] }
+        baselineDeviation: { type: number }
+        adamCaseId: { type: [string, 'null'] }
+    Alert:
+      type: object
+      required: [id, patientId, tier, state, triggerSummary, raisedAt]
+      properties:
+        id: { type: string }
+        patientId: { type: string }
+        tier: { enum: [nudge, health_worker_call, dispatch] }
+        state: { enum: [raised, acknowledged, escalated, resolved] }
+        triggerSummary: { type: string }
+        raisedAt: { type: string, format: date-time }
+    Reason:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 3, maxLength: 500 }
+    AdamOutboxItem:
+      type: object
+      required: [messageId, patientId, state, attempts, lastAttemptAt, syndromeFlags, exposureFlags, diseaseProfile, vitalsSummary]
+      properties:
+        messageId: { type: string }
+        patientId: { type: string }
+        site: { type: string }
+        timestamp: { type: string, format: date-time }
+        syndromeFlags: { type: array, items: { type: string } }
+        exposureFlags: { type: array, items: { type: string } }
+        diseaseProfile: { type: string }
+        vitalsSummary: { type: object, additionalProperties: false, properties: { baselineDeviation: { type: number }, signalQuality: { type: string } } }
+        adamCaseId: { type: [string, 'null'] }
+        state: { enum: [queued, sent, acknowledged, failed, dead_letter] }
+        attempts: { type: integer }
+        lastAttemptAt: { type: string, format: date-time }
+    Specimen:
+      type: object
+      required: [specimenId, patientId, state, collectedAt]
+      properties:
+        specimenId: { type: string }
+        patientId: { type: string }
+        state: { enum: [awaiting, negative, positive] }
+        collectedAt: { type: string, format: date-time }
+        reportedAt: { type: [string, 'null'], format: date-time }
+        laboratoryId: { type: [string, 'null'] }
+        adamCaseId: { type: [string, 'null'] }
+    Site:
+      type: object
+      required: [siteId, status, screeningCount, lastSyncAt]
+      properties:
+        siteId: { type: string }
+        status: { enum: [online, delayed, offline] }
+        screeningCount: { type: integer, minimum: 0 }
+        lastSyncAt: { type: [string, 'null'], format: date-time }
+        sequenceGaps: { type: integer, minimum: 0 }
+    AuditEvent:
+      type: object
+      required: [eventId, actorId, action, recordId, occurredAt]
+      properties:
+        eventId: { type: string }
+        actorId: { type: string }
+        action: { type: string }
+        recordId: { type: string }
+        occurredAt: { type: string, format: date-time }

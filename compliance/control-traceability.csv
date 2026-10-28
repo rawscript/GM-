@@ -1,0 +1,13 @@
+control_id,requirement,implementation,evidence,status
+AUTH-01,OIDC authorization code with PKCE and role checks,services/platform-go and apps/web/src/services/auth,role matrix contract tests,implementation pending
+PRIV-01,Registry identity isolation,services/registry-go,registry access tests and network policy,implementation pending
+PRIV-02,Purpose policy and per-recipient allow-list,services/adam-adapter-go/internal/policy,policy unit tests,implementation pending
+AUD-01,Append-only hash-chained audit,services/platform-go/internal/audit and infra/migrations/platform,chain verification command and mutation denial test,implementation pending
+DATA-01,No raw wearable sensor streams across contracts,contracts/events and contracts/openapi,contract schema tests,implemented in source schemas
+DATA-02,Summary sequence quality and baseline deviation,contracts/events/reading-summarised.schema.json,required-field contract test,implemented in source schema
+ADAM-01,ADaM owns official case,services/adam-adapter-go and apps/web integration pages,adapter ownership tests,design constraint
+ADAM-02,Only standalone and outbound enabled by default,services/adam-adapter-go,feature flag tests,interface confirmation required
+HEALTH-01,No learned scoring endpoint,services/insight-py,route inventory test,not implemented by design
+RES-01,Kenya data residency,infra/kubernetes and deployment configuration,deployment region review,approval required
+DHA-01,No national exchange before certification gate,infra and compliance/gates.yaml,release gate test,approval required
+SEC-01,ASVS Level 2 and API Top 10 mapping,compliance/control-traceability.csv,security review,implementation pending

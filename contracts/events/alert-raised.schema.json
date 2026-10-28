@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gm.invalid/contracts/events/alert-raised.schema.json",
+  "title": "AlertRaised",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "occurredAt", "patientId", "alertId", "tier", "triggerData", "configurationVersion"],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "patientId": { "type": "string" },
+    "alertId": { "type": "string" },
+    "tier": { "enum": ["nudge", "health_worker_call", "dispatch"] },
+    "triggerData": { "type": "object", "additionalProperties": false, "properties": { "baselineDeviation": { "type": "number" }, "signalQuality": { "type": "string" }, "sequenceGap": { "type": "integer", "minimum": 0 } } },
+    "configurationVersion": { "type": "string" }
+  }
+}

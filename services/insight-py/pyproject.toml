@@ -1,0 +1,26 @@
+[project]
+name = "gm-insight"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.115.12",
+  "pydantic==2.11.5",
+  "uvicorn==0.34.2"
+]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.5", "hypothesis==6.131.9", "httpx==0.28.1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "S", "C90", "UP", "ANN"]
+ignore = ["ANN101", "ANN102"]
+
+[tool.mypy]
+strict = true

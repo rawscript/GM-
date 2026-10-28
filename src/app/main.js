@@ -6,10 +6,14 @@ import '@fontsource/ibm-plex-sans/600.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '../design/tokens.css';
 import { pages, publicLinks } from '../content/pages.js';
-import { alerts, contacts, outbox } from '../data/fixtures.js';
-import { login, logout, session, availableRoles } from '../services/auth.js';
+import { login, logout, session, hydrateSession } from '../services/auth.js';
+import { getAlerts, getContacts, getOutbox, acknowledgeAlert, resolveAlert, createRevealGrant, revealIdentity, exportAdam } from '../services/api.js';
+import { subscribeAlerts } from '../services/live.js';
 
 const app = document.querySelector('#app');
+let contacts = [];
+let alerts = [];
+let outbox = [];
 const consoleLinks = [['/console', 'Overview'], ['/console/contacts', 'Contacts'], ['/console/alerts', 'Alerts'], ['/console/checkins', 'Missed check-ins'], ['/console/labs', 'Laboratory results'], ['/console/sites', 'Sites'], ['/console/adam', 'ADaM linkage'], ['/console/audit', 'Audit log']];
 
 function linkList(links, current) {
@@ -38,8 +42,8 @@ function overview(page) {
 
 function detailPage(page, path) {
   const isIntegration = path === '/integration';
-  const addition = isIntegration ? `<section class="section soft"><div class="container"><div class="grid"><div class="section-head"><span class="eyebrow">System boundary</span><h2>Each organisation keeps its role.</h2></div><p class="section-copy">An exchange links operational information to the official case record. It does not transfer ownership of the case.</p><div class="editorial-list"><table class="compare-table"><thead><tr><th scope="col">GM System</th><th scope="col">ADaM</th></tr></thead><tbody><tr><td>Screening and monitoring</td><td>Official case record</td></tr><tr><td>Device summaries and risk tier</td><td>Contact tracing and response</td></tr><tr><td>Vitals trends and notification</td><td>Official case status</td></tr></tbody></table></div></div></div></section>` : '';
-  const steps = isIntegration ? `<section class="section"><div class="container"><span class="eyebrow">Information flow</span><div class="flow">${[['01','Screen','GM records screening inputs.'],['02','Assess','Rules produce a referral tier.'],['03','Notify','A suspected case notification is prepared.'],['04','Link','Notification references an ADaM case ID.'],['05','Follow up','Trend summaries support monitoring.'],['06','Record','Exchange outcome is retained in the audit trail.']].map(([n,t,d]) => `<article class="flow-step"><span class="index">${n}</span><h3>${t}</h3><p>${d}</p></article>`).join('')}</div></div></section>` : '';
+  const addition = isIntegration ? `<section class="section soft"><div class="container"><div class="grid"><div class="section-head"><span class="eyebrow">System boundary</span><h2>Each organisation keeps its role.</h2></div><p class="section-copy">The GM Platform is authoritative for device data. ADaM is authoritative for the case record and official case status. No integration creates a competing case file.</p><div class="editorial-list"><table class="compare-table"><thead><tr><th scope="col">Responsibility</th><th scope="col">GM System</th><th scope="col">ADaM</th></tr></thead><tbody><tr><th scope="row">Role</th><td>Screening at entry and continuous monitoring</td><td>Case record, contact tracing and outbreak response</td></tr><tr><th scope="row">Owns</th><td>Device readings, risk tier and vital trends</td><td>Official case and its status</td></tr><tr><th scope="row">Active</th><td>Before a case exists and during follow-up</td><td>From case identification onward</td></tr></tbody></table></div></div></div></section><section class="section"><div class="container grid"><div class="section-head"><span class="eyebrow">Build sequence</span><h2>Begin with the workflow that can be agreed first.</h2></div><div class="section-copy"><p>Phases 1 and 2 are the near-term pilot targets. Phases 3 and 4 depend on interfaces the Ministry of Health and ICAP agree to make available.</p></div><div class="editorial-list">${editorial([['01','Standalone pilot','The surveillance officer reviews a GM export and enters flagged suspected cases into ADaM manually.'],['02','Outbound link','An adapter sends suspected-case notifications using an agreed format and identifier.'],['03','Monitoring link','Wearable alerts are linked into ADaM follow-up records if the required interface is available.'],['04','Two-way profile control','ADaM supplies the active outbreak profile to checkpoints when supported and approved.']])}</div></div></section>` : '';
+  const steps = isIntegration ? `<section class="section"><div class="container"><span class="eyebrow">Information flow</span><div class="flow">${[['01','Screen','Checkpoint applies the active disease profile and returns a referral tier.'],['02','Confirm','A nurse checks whether an amber or red result matches the case definition.'],['03','Notify','A suspected-case notification goes to ADaM, which owns and opens the official case.'],['04','Follow up','The person may be isolated or followed up; wearable trend summaries support monitoring.'],['05','Return result','A laboratory result returns by patient ID and specimen number. A clinician reviews release or escalation.'],['06','Set profile','In a later phase, ADaM may provide the active outbreak profile for checkpoints.']].map(([n,t,d]) => `<article class="flow-step"><span class="index">${n}</span><h3>${t}</h3><p>${d}</p></article>`).join('')}</div></div></section>` : '';
   return `<main id="main"><section class="container page-grid grid"><div class="page-intro"><span class="eyebrow">${page.eyebrow}</span><h1>${page.title}</h1><p class="lead">${page.lead}</p></div><aside class="page-aside">${page.illustration ? illustration(page.illustration) : `<span>GM SYSTEM · ${String(Object.keys(pages).indexOf(path)).padStart(2, '0')}</span><p>Designed to support health-worker review and a traceable follow-up pathway.</p>`}</aside><div class="editorial-list">${editorial(page.points)}</div></section>${steps}${addition}<section class="section"><div class="container">${notice(page.note)}</div></section></main>`;
 }
 
@@ -111,16 +115,15 @@ function sitesPage() {
 }
 
 function adamPage() {
-  return `${title('ADaM linkage','Current phase: standalone export · connected phases depend on agreed interfaces')}<div class="banner"><strong>ADaM owns the official case and its status.</strong> GM does not create a competing case file. Exported notifications must be entered and maintained in ADaM.</div><div class="panel"><div class="panel-head"><h2>Notification outbox</h2><button class="button small" id="export-outbox">Export flagged records</button></div><div class="table-wrap"><table class="console-table"><thead><tr><th scope="col">Idempotent message ID</th><th scope="col">Type</th><th scope="col">Patient ID</th><th scope="col">ADaM case ID</th><th scope="col">State</th><th scope="col">Retries</th><th scope="col">Last attempt</th></tr></thead><tbody>${outbox.map(item => `<tr><td>${item.message}</td><td>${item.type}</td><td>${item.patient}</td><td>${item.adam}</td><td>${item.state}</td><td>${item.attempts}</td><td>${item.last}</td></tr>`).join('')}</tbody></table></div></div><div class="panel"><h2>Payload fields</h2><p class="muted">Patient ID, site, timestamp, syndrome and exposure flags, disease profile, and vital-sign summaries. Raw sensor streams are never included.</p><ol class="mt-6"><li>Confirm patient identifier with the Ministry of Health.</li><li>Enter flagged notification into ADaM without creating a duplicate GM case.</li><li>Record the resulting ADaM case ID in the linked follow-up record.</li></ol><p id="export-state" class="mt-6" aria-live="polite"></p></div>`;
+  return `${title('ADaM linkage','Active phase: standalone export · outbound notification is the next integration phase')}<div class="banner"><strong>ADaM owns the official case and its status.</strong> GM remains authoritative for device data. In standalone mode, the facility surveillance officer reviews the export and enters flagged cases in ADaM.</div><div class="panel"><div class="panel-head"><h2>Notification outbox</h2><button class="button small" id="export-outbox">Export flagged records</button></div><div class="table-wrap"><table class="console-table"><thead><tr><th scope="col">Idempotent message ID</th><th scope="col">Type</th><th scope="col">Patient ID</th><th scope="col">ADaM case ID</th><th scope="col">State</th><th scope="col">Retries</th><th scope="col">Last attempt</th></tr></thead><tbody>${outbox.map(item => `<tr><td>${item.message}</td><td>${item.type}</td><td>${item.patient}</td><td>${item.adam}</td><td>${item.state}</td><td>${item.attempts}</td><td>${item.last}</td></tr>`).join('')}</tbody></table></div></div><div class="panel"><h2>Minimum notification payload</h2><p class="muted">Patient ID, site, timestamp, syndrome and exposure flags, applied disease profile, and vital-sign summaries. Raw sensor streams are excluded. The patient and specimen identifiers must be agreed with the Ministry before integration.</p><ol class="mt-6"><li>Review the flagged screening and the rule inputs.</li><li>Have a nurse confirm whether the result matches the case definition.</li><li>Enter the suspected case in ADaM and retain the ADaM case ID for linked follow-up.</li><li>Use an idempotent message ID so a retry cannot be mistaken for a new case.</li></ol><p id="export-state" class="mt-6" aria-live="polite"></p></div><div class="panel"><h2>Open integration questions</h2><ul><li>ADaM interface documentation is not publicly available for this design.</li><li>The Ministry and ICAP need to confirm whether the accepted format is FHIR or another format.</li><li>The Ministry needs to agree the patient and specimen identifiers.</li><li>Consent, data protection impact assessment and ODPC registration requirements need confirmation.</li></ul><p class="muted mt-6">The next work is Ministry and ICAP integration outreach, a notification schema, a manual-entry procedure and the data protection impact assessment.</p></div>`;
 }
 
 function auditPage() {
-  return `${title('Audit log','Exchanges, acknowledgements, reveals and exports')}<div class="panel"><div class="filters"><input type="search" aria-label="Filter audit records" placeholder="Actor, action or record"/><input type="date" aria-label="From date"/><input type="date" aria-label="To date"/><button class="button small" id="export-audit">Export log</button></div><div class="table-wrap"><table class="console-table"><thead><tr><th scope="col">Time · EAT</th><th scope="col">Actor</th><th scope="col">Action</th><th scope="col">Record</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>10:32</td><td>Surveillance officer</td><td>ADaM summary acknowledged</td><td>GMN-5EA8-1048</td><td>Recorded</td></tr><tr><td>10:18</td><td>System rule</td><td>Notification queued</td><td>GM-KEN-1072</td><td>Queued</td></tr><tr><td>09:56</td><td>System rule</td><td>Tier 3 alert raised</td><td>GM-KEN-1119</td><td>Open</td></tr></tbody></table></div></div>`;
+  return `${title('Audit log','Exchanges, acknowledgements, reveals and exports')}<div class="panel"><div class="filters"><input type="search" aria-label="Filter audit records" placeholder="Actor, action or record"/><input type="date" aria-label="From date"/><input type="date" aria-label="To date"/><button class="button small" id="export-audit">Export log</button></div><p class="muted" role="status">Audit events are available through the authenticated audit API when the platform service is configured.</p></div>`;
 }
 
 function roleGate() {
-  const options = availableRoles().map(role => `<option value="${role}">${role[0].toUpperCase() + role.slice(1)}</option>`).join('');
-  return `<main id="main" class="container"><form class="role-panel" id="role-form"><span class="eyebrow">GM Operations · Restricted workspace</span><h2>Operational access</h2><p class="muted">This local session boundary demonstrates role-based navigation. Production access requires an approved authentication service.</p><label for="role">Operational role</label><select id="role" required>${options}</select><button class="button mt-6" type="submit">Continue to console</button><p class="data-label mt-6">No real patient records are present in this workspace.</p></form></main>`;
+  return `<main id="main" class="container"><section class="role-panel"><span class="eyebrow">GM Operations · Restricted workspace</span><h2>Operational access</h2><p class="muted">Sign in through the configured identity provider. Access and actions follow role and site claims on the authenticated session.</p><button class="button mt-6" id="signin">Continue to sign in</button><p class="data-label mt-6">Session credentials are held in a secure same-site service cookie.</p></section></main>`;
 }
 
 function consolePage(path) {
@@ -140,10 +143,41 @@ function consolePage(path) {
   return consoleShell(path, content);
 }
 
-function render() {
+async function render() {
   const path = window.location.pathname.replace(/\/$/, '') || '/';
+  if (path.startsWith('/console')) await hydrateSession();
   app.innerHTML = path.startsWith('/console') ? consolePage(path) : publicPage(path);
   bind(path);
+  if (path.startsWith('/console') && session()) hydrateConsole(path);
+}
+
+async function hydrateConsole(path) {
+  const tasks = [getContacts(), getAlerts(), getOutbox(), hydrateSession()];
+  const results = await Promise.allSettled(tasks);
+  [contacts, alerts, outbox] = results.slice(0, 3).map(result => result.status === 'fulfilled' ? result.value : []);
+  if (results.some(result => result.status === 'rejected')) {
+    const message = document.createElement('div');
+    message.className = 'banner';
+    message.setAttribute('role', 'alert');
+    message.textContent = 'Operational data could not be refreshed. Check the connection and retry.';
+    document.querySelector('.console-main')?.prepend(message);
+    return;
+  }
+  if (path === '/console' || path === '/console/') app.querySelector('.console-main').innerHTML = dashboard();
+  if (path === '/console/contacts') app.querySelector('.console-main').innerHTML = contactsPage();
+  if (path === '/console/alerts') app.querySelector('.console-main').innerHTML = alertsPage();
+  if (path === '/console/adam') app.querySelector('.console-main').innerHTML = adamPage();
+  if (path === '/console/checkins') app.querySelector('.console-main').innerHTML = checkinsPage();
+  bind(path);
+  subscribeAlerts(alert => insertLiveAlert(alert));
+}
+
+function insertLiveAlert(alert) {
+  alerts = [alert, ...alerts];
+  const region = document.querySelector('[aria-live="polite"]');
+  if (region) region.textContent = `New ${alert.tier} tier alert ${alert.id} for ${alert.person}.`;
+  const list = document.querySelector('#alert-list');
+  if (list) list.insertAdjacentHTML('afterbegin', alertRow(alert));
 }
 
 function navigate(url) {
@@ -155,7 +189,7 @@ function navigate(url) {
 
 function downloadCsv() {
   const fields = ['patient_id','site','timestamp','syndrome_flags','exposure_flags','disease_profile','vitals_summary','adam_case_id'];
-  const lines = [fields.join(','), ...contacts.filter(person => person.tier !== 'green').map(person => [person.id, person.site, new Date().toISOString(), person.tier, person.tier, 'profile pending', 'vital trend summary pending', person.adam].map(value => `"${String(value).replaceAll('"','""')}"`).join(','))];
+  const lines = [fields.join(','), ...outbox.filter(message => message.state !== 'Acknowledged').map(message => [message.patient, message.site, message.timestamp, message.syndromeFlags.join('|'), message.exposureFlags.join('|'), message.diseaseProfile, JSON.stringify(message.vitalsSummary), message.adamCaseId].map(value => `"${String(value ?? '').replaceAll('"','""')}"`).join(','))];
   const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
   const anchor = document.createElement('a');
   anchor.href = url;
@@ -174,12 +208,8 @@ function bind(path) {
       navigate(url.pathname);
     }
   }));
-  document.querySelector('#role-form')?.addEventListener('submit', event => {
-    event.preventDefault();
-    login(document.querySelector('#role').value);
-    navigate('/console');
-  });
-  document.querySelector('#signout')?.addEventListener('click', () => { logout(); navigate('/console'); });
+  document.querySelector('#signin')?.addEventListener('click', () => login().catch(showRequestError));
+  document.querySelector('#signout')?.addEventListener('click', () => logout().catch(showRequestError));
   document.querySelector('#contact-search')?.addEventListener('input', filterContacts);
   document.querySelector('#status-filter')?.addEventListener('change', filterContacts);
   document.querySelector('#save-view')?.addEventListener('click', event => {
@@ -190,14 +220,47 @@ function bind(path) {
   document.querySelector('#alert-filter')?.addEventListener('change', filterAlerts);
   document.querySelectorAll('[data-alert]').forEach(button => button.addEventListener('click', () => openAlert(button.dataset.alert)));
   document.querySelector('#alert-dialog')?.addEventListener('close', recordDialogAction);
-  document.querySelector('#reveal-person')?.addEventListener('click', event => {
-    document.querySelector('#revealed').textContent = 'No personal details are stored in this workspace. Reveal action recorded in the audit interface.';
-    event.currentTarget.textContent = 'Reveal action recorded';
-  });
+  document.querySelector('#reveal-person')?.addEventListener('click', requestIdentityReveal);
   document.querySelector('[data-release]')?.addEventListener('click', () => window.alert('Clinician review is required before any release from monitoring.'));
-  document.querySelector('#export-outbox')?.addEventListener('click', downloadCsv);
+  document.querySelector('#export-outbox')?.addEventListener('click', () => exportAdam().then(downloadExport).catch(showRequestError));
   document.querySelector('#export-audit')?.addEventListener('click', () => window.alert('Audit export prepared for authorised review.'));
   if (path === '/console/contacts') restoreView();
+}
+
+async function requestIdentityReveal(event) {
+  const purpose = window.prompt('State the operational purpose for this identity reveal.');
+  if (!purpose || purpose.trim().length < 10) return;
+  try {
+    const id = window.location.pathname.split('/').at(-1);
+    const grant = await createRevealGrant(id, purpose.trim());
+    const challenge = window.prompt('Complete the step-up challenge from the identity provider.');
+    if (!challenge) return;
+    const identity = await revealIdentity(id, grant.grant, challenge);
+    document.querySelector('#revealed').textContent = `${identity.name} · ${identity.contactDetails}`;
+    event.currentTarget.textContent = 'Details revealed · audit recorded';
+  } catch {
+    document.querySelector('#revealed').textContent = 'Identity details were not returned. Verify the grant and step-up challenge, then retry.';
+  }
+}
+
+function downloadExport(result) {
+  if (!result?.url) throw new Error('Export service did not provide a download link.');
+  const anchor = document.createElement('a');
+  anchor.href = result.url;
+  anchor.download = result.filename || 'gm-adam-export.csv';
+  anchor.click();
+  const state = document.querySelector('#export-state');
+  if (state) state.textContent = `Export ${result.exportId} prepared. Manual entry in ADaM is required in standalone mode.`;
+}
+
+function showRequestError() {
+  const target = document.querySelector('.console-main') || document.querySelector('#main');
+  if (!target) return;
+  const message = document.createElement('div');
+  message.className = 'banner';
+  message.setAttribute('role', 'alert');
+  message.textContent = 'The request could not be completed. Check the connection and retry.';
+  target.prepend(message);
 }
 
 function filterContacts() {
@@ -241,10 +304,11 @@ function recordDialogAction() {
   }
   if (dialog.returnValue && dialog.returnValue !== 'cancel') {
     const banner = document.querySelector('.banner[aria-live]');
-    banner.textContent = `${dialog.returnValue === 'resolve' ? 'Resolved' : 'Acknowledged'} ${dialog.dataset.alert} by current operator. Reason recorded: ${reason}`;
+    const action = dialog.returnValue === 'resolve' ? resolveAlert : acknowledgeAlert;
+    action(dialog.dataset.alert, reason).then(() => { banner.textContent = `${dialog.returnValue === 'resolve' ? 'Resolved' : 'Acknowledged'} ${dialog.dataset.alert}. Reason recorded.`; }).catch(() => { banner.textContent = 'The action could not be saved. The alert remains open. Retry when the connection returns.'; });
   }
   document.querySelector('#action-reason').value = '';
 }
 
-window.addEventListener('popstate', render);
+window.addEventListener('popstate', () => { render(); });
 render();

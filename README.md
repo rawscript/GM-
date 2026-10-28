@@ -1,33 +1,50 @@
-# GM System
+# GM System monorepo
 
-The GM System is designed as a screening, monitoring and triage aid for outbreak response in Kenya. It does not diagnose. Laboratory confirmation remains with national laboratories. Wrist temperature is skin temperature, and wearable views show trends against a personal baseline. The electronic-nose module is described as experimental shadow-mode work and does not affect a referral decision. ADaM owns the official case and case status.
+The GM System is designed as a screening, monitoring and triage aid. It does not diagnose. Laboratory confirmation remains with national laboratories. Wrist temperature is skin temperature and is shown as a trend against an individual baseline. Electronic-nose data stays in shadow-mode research and cannot alter decisions. ADaM owns official outbreak cases and status.
 
-## Run locally
+## Repository map
 
-Install the declared dependencies with `npm install`, then use `npm run dev`. Build with `npm run build` and preview with `npm run preview`.
+- `apps/web` is the frontend package boundary. Its current source remains in `src` during the migration; the browser console uses `/api/v1`, OIDC redirect endpoints, same-site cookies and server-sent events.
+- `services/gateway-go` is the device ingestion boundary.
+- `services/platform-go` is the patient, alert, laboratory, audit and console API boundary.
+- `services/registry-go` is the isolated identity registry boundary and fails closed without key management configuration.
+- `services/adam-adapter-go` is the ADaM export and notification boundary. Monitoring links and profile control remain gated on interface confirmation.
+- `services/insight-py` contains de-identified aggregate logic and small-cell suppression. Learned risk scoring is not implemented.
+- `contracts` is the source for REST, event and gRPC interfaces.
+- `infra` contains local Compose, migrations and Kubernetes starting manifests.
+- `compliance` contains control evidence, approval gates, processing records, threat and risk artefacts.
+- `tools` contains contract checks and repository tools.
 
-## Architecture
+Each service has its own module and README. Services must communicate through versioned contracts, not imports. Generated code is reproducible and must not be hand edited.
 
-The application uses Vite and browser-native JavaScript modules. `src/app` owns route rendering and shells. `src/content` contains public route copy. `src/domain` contains pure decision and summary helpers. `src/data` contains local operational fixtures. `src/services` contains service boundaries, including the local role-session contract. `src/design` owns design tokens and component styling. `src/features` is reserved for independently sliced feature modules. `src/shared` contains shared presentation assets and partials.
+## Local setup
 
-The browser console uses deterministic local fixtures. The login control demonstrates a client-side role boundary; it is not an identity provider. Replace it with an approved authentication service before operational use. The ADaM route defaults to standalone export and explains that connected phases depend on agreed interfaces. No live patient information is included.
+Install Node.js 22, Go 1.23+, Python 3.12+, Docker Compose and Buf. Install JavaScript dependencies with `npm install`. Create an untracked `.env` containing `GM_PLATFORM_DB_PASSWORD`, `GM_REGISTRY_DB_PASSWORD`, `KEYCLOAK_ADMIN` and `KEYCLOAK_PASSWORD`. Start infrastructure using `docker compose -f infra/compose.yaml up --build`. Configure local development issuer, device certificates, broker credentials and encryption adapter before exercising protected service routes. The registry and ADaM adapter intentionally do not start as operational services without encryption and integration configuration.
 
-## Add a route
+## Contract workflow
 
-Add public copy to `src/content/pages.js`, add its path to `publicLinks`, and add any route-specific presentation in `src/app/main.js`. Console pages are routed beneath `/console` and share the authenticated shell. Keep data access in repositories and keep rule calculations in pure domain modules.
+Edit the OpenAPI, JSON Schema or protobuf source under `contracts`; run `buf lint contracts` and `python tools/check_contracts.py`; regenerate clients with `buf generate contracts` and the service-specific OpenAPI generators once pinned generator configuration is added. Review compatibility with `buf breaking` before merging. Do not edit generated files.
 
-## Add a feature
+## Add an endpoint
 
-Create a feature folder under `src/features` with a view, controller and local state module. Expose the public entry through one index module. Communicate between features through the application event bus when introduced; do not import implementation files from sibling features.
+Add the API definition to `contracts/openapi`, regenerate clients, implement a use case under the service application layer, define ports for persistence or external systems, implement adapters, then add role, site, schema and audit tests. Keep HTTP transport and RFC 9457 error mapping in the API adapter.
 
-## Add a design token
+## Add an event
 
-Add a custom property in the `tokens` layer of `src/design/tokens.css`. Reference it from component or page layers rather than adding one-off colour values. Keep clinical tier colours confined to labelled and shaped status indicators.
+Define the JSON Schema under `contracts/events` with `additionalProperties: false`, a unique message identifier, original event time and receipt time as appropriate. Wearable events carry summaries, sequence numbers, signal quality and baseline deviation. Raw sensor streams and identity details do not enter shared events.
 
-## Add an animation
+## Add a rule
 
-Register an animation by name in the central motion module when the motion registry is introduced. Route components request the registered name and do not import GSAP directly. Reduced-motion handling belongs in the registry.
+Implement a pure domain rule with an explicit configuration version, typed input and output, then add exhaustive transition and property tests. Clinical thresholds require a signed, versioned configuration from the agreed clinical protocol. Never add a learned-risk endpoint without clinical oversight and labelled outcomes.
 
-## Quality commands
+## Add a migration
 
-The package scripts expose `npm run lint`, `npm run test`, `npm run test:e2e`, and `npm run images`. Browser tests use Playwright and axe-core. Image manifest entries must include a meaningful alt description, commercial-use credit and source page URL. The fetch script refuses to invent or use unverified photography sources.
+Create a forward migration under `infra/migrations`, test it on a seeded disposable database and rehearse rollback in staging. Audit tables are append-only to application roles. Platform and registry remain separate databases with separate credentials.
+
+## Add a compliance control
+
+Add the requirement and evidence path to `compliance/control-traceability.csv`, link it to an automated test or deployment gate, and update the relevant risk, processing or DPIA artefact. Do not mark authority approval complete without documented evidence.
+
+## Build and verification
+
+`make lint`, `make test`, `make test-contract`, `make test-e2e`, `make scan` and `make up` expose repository tasks. Quality workflows run Go, Python, web and contract checks. This repository currently contains service skeletons and contract targets; real persistence, OIDC verification, mTLS ingestion, key management, FHIR profile alignment, live ADaM exchange, complete generated clients and deployment security review still require implementation and verification. No deployment, validation or regulatory approval is claimed.

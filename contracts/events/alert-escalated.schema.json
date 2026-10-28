@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AlertEscalated",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "alertId", "patientId", "fromTier", "toTier", "actorId", "occurredAt", "reason"],
+  "properties": {
+    "eventId": { "type": "string" },
+    "alertId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "fromTier": { "enum": ["nudge", "health_worker_call"] },
+    "toTier": { "enum": ["health_worker_call", "dispatch"] },
+    "actorId": { "type": "string" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "reason": { "type": "string", "minLength": 3 }
+  }
+}

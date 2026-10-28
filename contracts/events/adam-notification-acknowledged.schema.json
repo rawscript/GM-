@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AdamNotificationAcknowledged",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["messageId", "patientId", "acknowledgedAt", "adamCaseId", "acknowledgementId"],
+  "properties": {
+    "messageId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "acknowledgedAt": { "type": "string", "format": "date-time" },
+    "adamCaseId": { "type": "string" },
+    "acknowledgementId": { "type": "string" }
+  }
+}

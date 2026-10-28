@@ -1,0 +1,15 @@
+{
+  "realm": "gm",
+  "enabled": true,
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      { "name": "screening_operator" },
+      { "name": "surveillance_officer" },
+      { "name": "clinician" },
+      { "name": "administrator" },
+      { "name": "auditor" }
+    ]
+  },
+  "clients": []
+}

@@ -1,0 +1,16 @@
+records:
+  wearable_summaries:
+    duration: to_be_agreed
+    deletion: audited_job
+  identity_mapping:
+    duration: to_be_agreed_with_legal_retention_rules
+    deletion: registry_only_audited_request
+  audit_log:
+    duration: to_be_agreed
+    deletion: prohibited_for_application_role
+  exports:
+    duration: purpose_and_authority_defined
+    deletion: audited_job
+data_residency:
+  default_country: Kenya
+  cross_border_transfer: disabled

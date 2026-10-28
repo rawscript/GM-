@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "images": "node scripts/fetch-images.mjs"
   },
+  "workspaces": ["apps/web"],
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.6",
     "@fontsource/ibm-plex-sans": "^5.2.6",

@@ -1,0 +1,8 @@
+hazard_id,hazard,cause,impact,mitigation,verification,status
+H-001,Missed alert,device or broker outage,delayed human review,heartbeat gap alerts and offline buffering,sequence gap integration test,open
+H-002,Duplicated alert,retry or replay,duplicate response,deterministic idempotency key and deduplication store,replay property test,open
+H-003,Clock error,device drift,incorrect event ordering,retain device and receipt timestamps and flag skew,clock bound test,open
+H-004,Failed sync,network interruption,stale follow-up information,outbox retries and visible freshness,offline recovery test,open
+H-005,Wrong rule configuration,stale or unsigned profile,incorrect referral tier,signed versioned clinical configuration and audit record,signature and hot reload tests,open
+H-006,Unauthorised identity reveal,role misuse,privacy harm,stated purpose step-up grant and audit-before-return,authorization and audit failure test,open
+H-007,Duplicate case notification,ambiguous retry,competing operational record,ADaM case ownership and idempotent message ID,notification replay contract test,open

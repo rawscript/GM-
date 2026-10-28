@@ -1,0 +1,22 @@
+syntax = "proto3";
+package gm.v1;
+option go_package = "github.com/gm-system/contracts/gen/go/gm/v1;gmv1";
+
+message EventEnvelope {
+  string message_id = 1;
+  string event_type = 2;
+  string occurred_at = 3;
+  string received_at = 4;
+  bytes payload_json = 5;
+}
+
+message Acknowledgement {
+  string message_id = 1;
+  bool accepted = 2;
+  string state = 3;
+  string received_at = 4;
+}
+
+service Ingestion {
+  rpc Ingest(EventEnvelope) returns (Acknowledgement);
+}

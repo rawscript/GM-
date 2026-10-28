@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AdamNotificationQueued",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["messageId", "patientId", "site", "timestamp", "syndromeFlags", "exposureFlags", "diseaseProfile", "vitalsSummary", "queuedAt"],
+  "properties": {
+    "messageId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "site": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "syndromeFlags": { "type": "array", "items": { "type": "string" } },
+    "exposureFlags": { "type": "array", "items": { "type": "string" } },
+    "diseaseProfile": { "type": "string" },
+    "vitalsSummary": { "type": "object", "additionalProperties": false, "properties": { "baselineDeviation": { "type": "number" }, "signalQuality": { "type": "string" } } },
+    "queuedAt": { "type": "string", "format": "date-time" }
+  }
+}

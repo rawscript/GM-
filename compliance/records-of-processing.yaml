@@ -1,0 +1,19 @@
+processing:
+  - name: screening_and_follow_up
+    purposes: [screening_support, contact_monitoring, health_worker_triage]
+    data: [pseudonymous_patient_id, site, timestamp, screening_flags, wearable_summaries]
+    recipients: [gm_platform, authorized_health_workers]
+    retention: configured_by_authority
+    lawful_basis: to_be_confirmed
+  - name: registry_identity
+    purposes: [authorized_contact, identity_reveal]
+    data: [name, contact_details, patient_id_mapping]
+    recipients: [registry_service, authorized_reveal_grant]
+    retention: configured_by_authority
+    lawful_basis: to_be_confirmed
+  - name: adam_notification
+    purposes: [suspected_case_notification, linked_follow_up]
+    data: [patient_id, site, timestamp, syndrome_flags, exposure_flags, disease_profile, vitals_summary]
+    recipients: [adam_adapter, adam_after_authorization]
+    retention: configured_by_authority
+    lawful_basis: to_be_confirmed

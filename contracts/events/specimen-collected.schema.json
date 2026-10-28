@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpecimenCollected",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "specimenId", "patientId", "collectedAt", "site", "state"],
+  "properties": {
+    "eventId": { "type": "string" },
+    "specimenId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "collectedAt": { "type": "string", "format": "date-time" },
+    "site": { "type": "string" },
+    "state": { "const": "awaiting" }
+  }
+}

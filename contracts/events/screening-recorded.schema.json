@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScreeningRecorded",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "patientId", "site", "timestamp", "receivedAt", "inputs", "diseaseProfile", "tier"],
+  "properties": {
+    "eventId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "site": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "receivedAt": { "type": "string", "format": "date-time" },
+    "inputs": { "type": "object", "additionalProperties": false, "properties": { "measurementAvailable": { "type": "boolean" }, "syndromeFlags": { "type": "array", "items": { "type": "string" } }, "exposureFlags": { "type": "array", "items": { "type": "string" } } } },
+    "diseaseProfile": { "type": "string" },
+    "tier": { "enum": ["green", "amber", "red"] },
+    "messageId": { "type": "string" }
+  }
+}

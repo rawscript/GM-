@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LabResultReceived",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "specimenId", "patientId", "reportedAt", "state", "laboratoryId"],
+  "properties": {
+    "eventId": { "type": "string" },
+    "specimenId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "reportedAt": { "type": "string", "format": "date-time" },
+    "state": { "enum": ["negative", "positive"] },
+    "laboratoryId": { "type": "string" }
+  }
+}

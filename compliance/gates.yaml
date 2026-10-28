@@ -1,0 +1,25 @@
+approvals:
+  ministry_of_health_and_national_command:
+    status: to_be_confirmed
+    gate: clinical protocol and pilot agreement
+  pharmacy_and_poisons_board:
+    status: to_be_confirmed
+    gate: device classification and approval route
+  communications_authority_of_kenya:
+    status: to_be_confirmed
+    gate: radio equipment approval
+  office_of_data_protection_commissioner:
+    status: to_be_confirmed
+    gate: registration and impact assessment
+  digital_health_agency:
+    status: to_be_confirmed
+    gate: certification before national exchange
+  research_ethics_and_licensing:
+    status: to_be_confirmed
+    gate: ethics and research licensing before human-participant pilot
+deployment:
+  kenya_data_residency: required
+  cross_border_transfer: disabled
+  national_health_information_exchange: disabled_until_certified
+  adam_monitoring_link: disabled_until_interface_confirmed
+  adam_profile_control: disabled_until_interface_confirmed

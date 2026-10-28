@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gm.invalid/contracts/events/reading-summarised.schema.json",
+  "title": "ReadingSummarised",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "patientId", "deviceId", "sequenceNumber", "timestamp", "receivedAt", "signalQuality", "baselineDeviation"],
+  "properties": {
+    "eventId": { "type": "string" },
+    "patientId": { "type": "string" },
+    "deviceId": { "type": "string" },
+    "sequenceNumber": { "type": "integer", "minimum": 0 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "receivedAt": { "type": "string", "format": "date-time" },
+    "signalQuality": { "enum": ["good", "fair", "poor", "gap"] },
+    "baselineDeviation": { "type": "number" },
+    "sequenceGap": { "type": "integer", "minimum": 0 }
+  }
+}

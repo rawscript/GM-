@@ -1,20 +1,29 @@
-const roles = ['screening operator', 'surveillance officer', 'clinician', 'administrator', 'auditor'];
+import { getSessionInfo } from './api.js';
+
+let currentSession = null;
 
 export function session() {
-  return JSON.parse(localStorage.getItem('gm-session') || 'null');
+  return currentSession;
 }
 
-export function login(role) {
-  if (!roles.includes(role)) throw new Error('Select an available operational role.');
-  const next = { role, issuedAt: new Date().toISOString() };
-  localStorage.setItem('gm-session', JSON.stringify(next));
-  return next;
+export async function login() {
+  const response = await fetch('/api/v1/auth/login', { method: 'POST', credentials: 'same-origin' });
+  if (!response.ok) throw new Error('Identity provider sign-in could not be started.');
+  const result = await response.json();
+  window.location.assign(result.authorizationUrl);
 }
 
-export function logout() {
-  localStorage.removeItem('gm-session');
+export async function hydrateSession() {
+  try {
+    currentSession = await getSessionInfo();
+  } catch {
+    currentSession = null;
+  }
+  return currentSession;
 }
 
-export function availableRoles() {
-  return [...roles];
+export async function logout() {
+  await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+  currentSession = null;
+  window.location.assign('/console');
 }

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gm-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gm-platform
+  template:
+    metadata:
+      labels:
+        app: gm-platform
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: platform
+          image: gm/platform:local
+          ports:
+            - containerPort: 8082
+          env:
+            - name: GM_OIDC_ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: gm-platform
+                  key: oidcIssuer
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8082
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8082
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
