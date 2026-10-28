@@ -17,7 +17,7 @@
     "credit": "Vitaly Gariev on Unsplash",
     "sourcePageUrl": "https://unsplash.com/photos/two-doctors-looking-at-a-medical-scan-on-tablet-vJHBwF4-DW0",
     "alt": "Healthcare colleagues reviewing a medical scan on a tablet",
-    "assetPath": "https://images.unsplash.com/photo-1758691463569-66de91d76452?auto=format&fit=crop&w=1600&q=85"
+    "assetPath": "/images/care-team.webp"
   },
   {
     "id": "wearable-health",
@@ -27,7 +27,7 @@
     "credit": "Ivett M on Unsplash",
     "sourcePageUrl": "https://unsplash.com/photos/smartwatch-on-a-persons-wrist-showing-time-and-icons-BHP3Az-NTfA",
     "alt": "Smartwatch displaying health and activity information",
-    "assetPath": "https://images.unsplash.com/photo-1777496410127-b299effbaa69?auto=format&fit=crop&w=1600&q=85"
+    "assetPath": "/images/wearable-health.webp"
   },
   {
     "id": "lab-research",
@@ -37,7 +37,7 @@
     "credit": "CDC on Unsplash",
     "sourcePageUrl": "https://unsplash.com/photos/person-using-pipette-in-laboratory-wDxFn_dBEC0",
     "alt": "Laboratory scientist preparing a sample for testing",
-    "assetPath": "https://images.unsplash.com/photo-1582560475093-ba66accbc424?auto=format&fit=crop&w=1600&q=85"
+    "assetPath": "/images/lab-research.webp"
   },
   {
     "id": "medical-tech",
@@ -47,6 +47,46 @@
     "credit": "Vitaly Gariev on Unsplash",
     "sourcePageUrl": "https://unsplash.com/photos/doctor-holding-a-tablet-with-a-green-screen-A-8s9mDwTLY",
     "alt": "Doctor using a tablet in a hospital",
-    "assetPath": "https://images.unsplash.com/photo-1758691462620-9018c602ed3e?auto=format&fit=crop&w=1600&q=85"
+    "assetPath": "/images/medical-tech.webp"
+  },
+  {
+    "id": "pilot-planning",
+    "searchQuery": "healthcare team meeting planning discussion",
+    "orientation": "landscape",
+    "minimumWidth": 1600,
+    "credit": "National Cancer Institute on Unsplash",
+    "sourcePageUrl": "https://unsplash.com/photos/people-sitting-inside-room-VvZyfM40FxQ",
+    "alt": "Healthcare professionals in a planning discussion",
+    "assetPath": "/images/pilot-planning.webp"
+  },
+  {
+    "id": "integration-systems",
+    "searchQuery": "digital health data network connected systems",
+    "orientation": "landscape",
+    "minimumWidth": 1600,
+    "credit": "National Cancer Institute on Unsplash",
+    "sourcePageUrl": "https://unsplash.com/photos/person-using-laptop-computer-beside-smartphone-M4cv9QbK-cQ",
+    "alt": "Connected digital health systems and data exchange",
+    "assetPath": "/images/integration-systems.webp"
+  },
+  {
+    "id": "assurance-compliance",
+    "searchQuery": "medical documentation clipboard compliance review",
+    "orientation": "landscape",
+    "minimumWidth": 1600,
+    "credit": "CDC on Unsplash",
+    "sourcePageUrl": "https://unsplash.com/photos/a-person-holding-a-clipboard-in-a-hospital-2T5HRVjLmGA",
+    "alt": "Healthcare compliance and documentation review",
+    "assetPath": "/images/assurance-compliance.webp"
+  },
+  {
+    "id": "signin-secure",
+    "searchQuery": "hospital operations secure access corridor",
+    "orientation": "landscape",
+    "minimumWidth": 1600,
+    "credit": "Tasha Kostyuk on Unsplash",
+    "sourcePageUrl": "https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8",
+    "alt": "Secure healthcare operations environment",
+    "assetPath": "/images/signin-secure.webp"
   }
 ]

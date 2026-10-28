@@ -58,6 +58,7 @@ type inviteRequest struct {
 }
 
 func main() {
+	loadEnv()
 	auth := newSupabaseAuth()
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", health)
@@ -81,7 +82,7 @@ func main() {
 			slog.Error("platform shutdown failed", "error", err)
 		}
 	}()
-	slog.Info("platform listening", "address", address(), "supabase_configured", auth.baseURL != "")
+	slog.Info("platform listening", "address", address(), "supabase_configured", auth.baseURL != "", "invitations_configured", auth.serviceKey != "")
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		slog.Error("platform failed", "error", err)
 		os.Exit(1)
@@ -168,6 +169,7 @@ func (a *supabaseAuth) updatePassword(w http.ResponseWriter, r *http.Request) {
 
 func (a *supabaseAuth) inviteUser(w http.ResponseWriter, r *http.Request) {
 	if a.serviceKey == "" {
+		slog.Warn("invite rejected: SUPABASE_SERVICE_ROLE_KEY is not set in .env.local")
 		problem(w, 503, "Account invitations are not configured")
 		return
 	}
@@ -198,6 +200,8 @@ func (a *supabaseAuth) inviteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(response.Body)
+		slog.Warn("supabase invite rejected", "status", response.StatusCode, "supabase_response", string(respBody))
 		problem(w, 400, "Could not invite this account")
 		return
 	}
@@ -222,6 +226,8 @@ func (a *supabaseAuth) inviteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(response.Body)
+		slog.Warn("supabase role assignment rejected", "status", response.StatusCode, "supabase_response", string(respBody))
 		problem(w, 502, "Account role could not be assigned; disable the pending invite and retry")
 		return
 	}
@@ -292,6 +298,8 @@ func (a *supabaseAuth) login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
+		respBody, _ := io.ReadAll(response.Body)
+		slog.Warn("supabase login rejected", "status", response.StatusCode, "supabase_response", string(respBody))
 		problem(w, 401, "Email or password was not accepted")
 		return
 	}
@@ -428,4 +436,36 @@ func address() string {
 		return value
 	}
 	return ":8082"
+}
+
+func loadEnv() {
+	candidates := []string{
+		".env.local",
+		".env",
+		"../../.env.local",
+		"../../.env",
+		"../.env.local",
+		"../.env",
+	}
+	for _, path := range candidates {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				key := strings.TrimSpace(parts[0])
+				val := strings.TrimSpace(parts[1])
+				val = strings.Trim(val, `"'`)
+				if os.Getenv(key) == "" {
+					_ = os.Setenv(key, val)
+				}
+			}
+		}
+	}
 }
