@@ -20,6 +20,7 @@ import {
 } from "../services/api.js";
 import { subscribeAlerts } from "../services/live.js";
 import { imageSource } from "../shared/image.js";
+import { companionPage, bindCompanionEvents } from "./companion.js";
 import { gsap } from "gsap";
 
 const app = document.querySelector("#app");
@@ -53,6 +54,7 @@ function header(path) {
     ["/", "Overview"],
     ["/checkpoint", "Checkpoint"],
     ["/wearable", "Wearable"],
+    ["/companion", "Patient view"],
     ["/platform", "Platform"],
   ];
   const more = [
@@ -147,8 +149,11 @@ function detailPage(page, path) {
         )
         .join("")}</div></div></section>`
     : "";
-  const photo = ({ "/checkpoint": "operations-healthcare", "/wearable": "wearable-health", "/platform": "medical-tech", "/integration": "integration-systems", "/assurance": "assurance-compliance", "/pilot": "pilot-planning", "/credits": "operations-healthcare" })[path] || "medical-tech";
-  return `<main id="main"><section class="container page-grid grid"><div class="page-intro"><span class="eyebrow">${page.eyebrow}</span><h1>${page.title}</h1><p class="lead">${page.lead}</p></div><aside class="page-aside"><img class="page-photo" src="${imageSource(photo)}" alt="${pages[path]?.imageAlt || "Health technology and care in practice"}"/>${page.illustration ? illustration(page.illustration) : `<span>GM SYSTEM · ${String(Object.keys(pages).indexOf(path)).padStart(2, "0")}</span><p>Designed to support health-worker review and a traceable follow-up pathway.</p>`}</aside><div class="editorial-list">${editorial(page.points)}</div></section>${steps}${addition}<section class="section"><div class="container">${notice(page.note)}</div></section></main>`;
+  const photo = ({ "/checkpoint": "operations-healthcare", "/wearable": "wearable-health", "/companion": "wearable-health", "/platform": "medical-tech", "/integration": "integration-systems", "/assurance": "assurance-compliance", "/pilot": "pilot-planning", "/credits": "care-team" })[path] || "medical-tech";
+  const wearableCompanionCta = path === "/wearable"
+    ? `<section class="section soft"><div class="container"><div class="panel"><div class="section-head"><span class="eyebrow">Patient Experience · Follow-Up</span><h2>The GM Patient Companion</h2></div><p class="section-copy">Designed for patients on 21-day continuous monitoring. Patients view their own smartwatch telemetry, personal baseline trends and symptom check-ins calmly without alarm, while maintaining a direct line to their clinical care team.</p><div class="mt-6"><a class="button" href="/companion">Explore Patient Companion <span aria-hidden="true">→</span></a></div></div></div></section>`
+    : "";
+  return `<main id="main"><section class="container page-grid grid"><div class="page-intro"><span class="eyebrow">${page.eyebrow}</span><h1>${page.title}</h1><p class="lead">${page.lead}</p></div><aside class="page-aside"><img class="page-photo" src="${imageSource(photo)}" alt="${pages[path]?.imageAlt || "Health technology and care in practice"}"/>${page.illustration ? illustration(page.illustration) : `<span>GM SYSTEM · ${String(Object.keys(pages).indexOf(path)).padStart(2, "0")}</span><p>Designed to support health-worker review and a traceable follow-up pathway.</p>`}</aside><div class="editorial-list">${editorial(page.points)}</div></section>${steps}${addition}${wearableCompanionCta}<section class="section"><div class="container">${notice(page.note)}</div></section></main>`;
 }
 
 function illustration(type) {
@@ -180,7 +185,7 @@ function consoleShell(path, content) {
 }
 
 function title(titleText, subtitle = "") {
-  const titlePhotos = { "Command overview": "medical-tech", Contacts: "care-team", Alerts: "operations-healthcare", "Missed check-ins": "wearable-health", "Laboratory results": "lab-research", Sites: "integration-systems", "ADaM linkage": "medical-tech", "Audit log": "assurance-compliance" };
+  const titlePhotos = { "Command overview": "medical-tech", Contacts: "care-team", Alerts: "operations-healthcare", "Missed check-ins": "wearable-health", "Laboratory results": "lab-research", Sites: "integration-systems", "ADaM linkage": "integration-systems", "Audit log": "assurance-compliance" };
   const photo = titlePhotos[titleText] || "medical-tech";
   return `<div class="console-title"><div><span class="eyebrow">GM Operations · Kenya</span><h1 tabindex="-1">${titleText}</h1>${subtitle ? `<p class="muted">${subtitle}</p>` : ""}</div><img class="console-title-photo" src="${imageSource(photo)}" alt=""/><span class="sync">Synced 10:32 EAT</span></div>`;
 }
@@ -254,7 +259,7 @@ function auditPage() {
 }
 
 function roleGate() {
-  return `<main id="main" class="signin-screen" style="--signin-image: url('${imageSource("signin-secure")}')"><div class="container signin-layout"><section class="role-panel"><span class="eyebrow">GM Operations · Restricted workspace</span><h1>Operational access</h1><p class="muted">Sign in to review contact follow-up, alerts and laboratory links. Access follows the role and site assigned to your account.</p><form id="signin-form" class="signin-form"><input type="hidden" name="returnTo" value="${window.location.pathname === "/evergreen" ? "/evergreen" : "/console"}"/><label for="signin-email">Work email</label><input id="signin-email" name="email" type="email" autocomplete="username" required/><label for="signin-password">Password</label><input id="signin-password" name="password" type="password" autocomplete="current-password" required/><button class="button mt-6" type="submit">Sign in <span aria-hidden="true">→</span></button><button class="text-button" type="button" id="show-recovery">Forgot password?</button><p class="data-label" id="signin-error" role="alert" aria-live="polite"></p></form><form id="recovery-form" class="signin-form recovery-form" hidden><h2>Reset your password</h2><p class="muted">We’ll send a secure reset link if an account exists for that email.</p><label for="recovery-email">Work email</label><input id="recovery-email" name="email" type="email" autocomplete="email" required/><button class="button mt-6" type="submit">Send reset link</button><button class="text-button" type="button" id="back-to-signin">Back to sign in</button><p class="data-label" id="recovery-state" role="status" aria-live="polite"></p></form><p class="data-label mt-6">Your session is held in a secure, same-site service cookie.</p></section><aside class="signin-caption"><span class="eyebrow">Health operations · Kenya</span><p>Designed for focused review across screening and follow-up.</p></aside></div></main>`;
+  return `<main id="main" class="signin-screen" style="--signin-image: url('${imageSource("operations-healthcare")}')"><div class="container signin-layout"><section class="role-panel"><span class="eyebrow">GM Operations · Restricted workspace</span><h1>Operational access</h1><p class="muted">Sign in to review contact follow-up, alerts and laboratory links. Access follows the role and site assigned to your account.</p><form id="signin-form" class="signin-form"><input type="hidden" name="returnTo" value="${window.location.pathname === "/evergreen" ? "/evergreen" : "/console"}"/><label for="signin-email">Work email</label><input id="signin-email" name="email" type="email" autocomplete="username" required/><label for="signin-password">Password</label><input id="signin-password" name="password" type="password" autocomplete="current-password" required/><button class="button mt-6" type="submit">Sign in <span aria-hidden="true">→</span></button><button class="text-button" type="button" id="show-recovery">Forgot password?</button><p class="data-label" id="signin-error" role="alert" aria-live="polite"></p></form><form id="recovery-form" class="signin-form recovery-form" hidden><h2>Reset your password</h2><p class="muted">We’ll send a secure reset link if an account exists for that email.</p><label for="recovery-email">Work email</label><input id="recovery-email" name="email" type="email" autocomplete="email" required/><button class="button mt-6" type="submit">Send reset link</button><button class="text-button" type="button" id="back-to-signin">Back to sign in</button><p class="data-label" id="recovery-state" role="status" aria-live="polite"></p></form><p class="data-label mt-6">Your session is held in a secure, same-site service cookie.</p></section><aside class="signin-caption"><span class="eyebrow">Health operations · Kenya</span><p>Designed for focused review across screening and follow-up.</p></aside></div></main>`;
 }
 
 function evergreenPage() {
@@ -310,9 +315,11 @@ async function render() {
     ? evergreenPage()
     : path === "/reset-password"
       ? resetPasswordPage()
-      : path.startsWith("/console")
-        ? consolePage(path)
-        : publicPage(path);
+      : path === "/companion"
+        ? companionPage()
+        : path.startsWith("/console")
+          ? consolePage(path)
+          : publicPage(path);
   bind(path);
   animatePage();
   if (path.startsWith("/console") && session()) hydrateConsole(path);
@@ -322,12 +329,16 @@ function animatePage() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   
   // Text and container animations
-  const textTargets = app.querySelectorAll(".hero-content, .hero-visual, .page-intro, .page-aside, .console-title, .console-card, .panel, .feature-row, .signin-caption");
-  gsap.fromTo(textTargets, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, stagger: 0.055, ease: "power2.out", clearProps: "all" });
+  const textTargets = app.querySelectorAll(".hero-content, .hero-visual, .page-intro, .page-aside, .console-title, .console-card, .panel, .feature-row, .signin-caption, .state-card, .vital-card, .happening-panel, .watch-summary-panel");
+  if (textTargets.length > 0) {
+    gsap.fromTo(textTargets, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, stagger: 0.055, ease: "power2.out", clearProps: "all" });
+  }
   
   // Image fade-in with subtle scale
-  const imageTargets = app.querySelectorAll(".hero-photo, .page-photo, .console-title-photo, .evergreen-hero img");
-  gsap.fromTo(imageTargets, { autoAlpha: 0, scale: 1.03 }, { autoAlpha: 1, scale: 1, duration: 0.7, stagger: 0.08, ease: "power2.out", clearProps: "all" });
+  const imageTargets = app.querySelectorAll(".hero-photo, .page-photo, .console-title-photo, .evergreen-hero img, .companion-watch-img");
+  if (imageTargets.length > 0) {
+    gsap.fromTo(imageTargets, { autoAlpha: 0, scale: 1.03 }, { autoAlpha: 1, scale: 1, duration: 0.7, stagger: 0.08, ease: "power2.out", clearProps: "all" });
+  }
 }
 
 async function hydrateConsole(path) {
@@ -524,6 +535,9 @@ function bind(path) {
     ?.addEventListener("click", () =>
       window.alert("Audit export prepared for authorised review."),
     );
+  if (path === "/companion") {
+    bindCompanionEvents(() => render());
+  }
   if (path === "/console/contacts") restoreView();
 }
 

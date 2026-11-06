@@ -78,15 +78,5 @@
     "sourcePageUrl": "https://unsplash.com/photos/a-person-holding-a-clipboard-in-a-hospital-2T5HRVjLmGA",
     "alt": "Healthcare compliance and documentation review",
     "assetPath": "/images/assurance-compliance.webp"
-  },
-  {
-    "id": "signin-secure",
-    "searchQuery": "hospital operations secure access corridor",
-    "orientation": "landscape",
-    "minimumWidth": 1600,
-    "credit": "Tasha Kostyuk on Unsplash",
-    "sourcePageUrl": "https://unsplash.com/photos/empty-hospital-corridor-with-benches-and-doors-Pk-KuizxQv8",
-    "alt": "Secure healthcare operations environment",
-    "assetPath": "/images/signin-secure.webp"
   }
 ]

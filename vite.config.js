@@ -22,7 +22,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.GM_PLATFORM_URL || 'http://127.0.0.1:8082',
+        target: process.env.GM_PLATFORM_URL || 'http://127.0.0.1:8083',
         changeOrigin: true,
       },
     },

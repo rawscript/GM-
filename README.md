@@ -33,17 +33,17 @@ Install Node.js 22+, Go 1.23+ and Git. The local dashboard sign-in uses the conf
    ```powershell
    Get-Content .env.local | Where-Object { $_ -match '^\s*[^#][^=]*=' } | ForEach-Object { $name, $value = $_.Split('=', 2); [Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim(), 'Process') }
    Set-Location services/platform-go
-   $env:GM_HTTP_ADDR = ':8082'
+   $env:GM_HTTP_ADDR = ':8083'
    go run ./cmd/platform
    ```
 
-   The API listens on `http://127.0.0.1:8082`. Check it with `Invoke-WebRequest http://127.0.0.1:8082/health`.
+   The API listens on `http://127.0.0.1:8083`. Check it with `Invoke-WebRequest http://127.0.0.1:8083/health`.
 
 3. In a second PowerShell terminal at the repository root, install dependencies and start Vite:
 
    ```powershell
    npm install
-   $env:GM_PLATFORM_URL = 'http://127.0.0.1:8082'
+   $env:GM_PLATFORM_URL = 'http://127.0.0.1:8083'
    npm run dev
    ```
 

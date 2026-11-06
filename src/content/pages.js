@@ -208,12 +208,39 @@ export const pages = {
     ],
     note: "Photo source links and contributor names are listed in the image credits at src/content/image-credits.html.",
   },
+  "/companion": {
+    eyebrow: "Patient Companion · Follow-up",
+    title: "A clear, calm view of your personal vitals.",
+    lead: "The GM Patient Companion gives people on follow-up a reassuring, private view of their smartwatch telemetry, trend observations, and direct access to their assigned care team.",
+    section: "Personal baseline. Clear understanding. Zero alarm.",
+    body: "Built for patients wearing the GM Wearable across their 21-day observation period, in full compliance with Kenya's Data Protection Act 2019.",
+    points: [
+      [
+        "01",
+        "Personal baseline",
+        "Readings are evaluated against your own typical baseline, not population textbook averages.",
+      ],
+      [
+        "02",
+        "Calm understanding",
+        "Trends are observed over time; bad signals from loose straps are filtered to prevent panic.",
+      ],
+      [
+        "03",
+        "Direct care contact",
+        "One-touch direct telephone and callback access to your assigned nursing team.",
+      ],
+    ],
+    note: "The Patient Companion is an informational decision-support aid. It does not diagnose. Laboratory confirmation remains with national reference laboratories.",
+    illustration: "wearable",
+  },
 };
 
 export const publicLinks = [
   ["/", "Overview"],
   ["/checkpoint", "Checkpoint"],
   ["/wearable", "Wearable"],
+  ["/companion", "Patient view"],
   ["/platform", "Platform"],
   ["/integration", "ADaM integration"],
   ["/assurance", "Assurance"],
