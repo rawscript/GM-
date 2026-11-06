@@ -67,6 +67,32 @@ export function setCompanionTab(tab) {
   currentTab = tab;
 }
 
+// ─── Inline SVG icon helpers ────────────────────────────────────────────────
+// All icons are aria-hidden; surrounding elements carry the accessible label.
+const icon = {
+  // ☎ / 📞  phone handset
+  phone: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 015.13 12.7a19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>`,
+  // ⌚  watch face
+  watch: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="4"/><path d="M9 2h6M9 22h6M12 8v4l2 2"/></svg>`,
+  // ⚡  battery / charge
+  battery: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M7 11l3-3-3 3 3 3-3-3z" fill="currentColor" stroke="none"/></svg>`,
+  // 🕒  clock / sync time
+  clock: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>`,
+  // 🔔  bell / notification
+  bell: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
+  // 🌡️  thermometer
+  thermometer: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>`,
+  // 🫁  lungs / breathing
+  lungs: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v8"/><path d="M6.5 10C4 10 2 12 2 14.5S4 19 6.5 19H9a1 1 0 001-1v-7a1 1 0 00-1-1H6.5z"/><path d="M17.5 10H15a1 1 0 00-1 1v7a1 1 0 001 1h2.5C20 19 22 17 22 14.5S20 10 17.5 10z"/></svg>`,
+  // 🥣  appetite / food
+  appetite: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C6.5 2 2 6.5 2 12h20c0-5.5-4.5-10-10-10z"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="12" x2="12" y2="22"/></svg>`,
+  // 🩹  wound / symptoms
+  symptoms: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="8" height="8" rx="1" transform="rotate(45 12 12)"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>`,
+  // 🛌  sleep / rest
+  sleep: `<svg class="ui-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 18a5 5 0 00-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>`,
+};
+// ────────────────────────────────────────────────────────────────────────────
+
 function renderStateIcon(stateKey) {
   switch (stateKey) {
     case COMPANION_STATES.SETTLED:
@@ -245,11 +271,11 @@ export function companionPage() {
     <aside class="emergency-strip ${evalResult.tier === 'red' ? 'strip-urgent' : ''}" role="region" aria-label="Care team emergency contact">
       <div class="container emergency-row">
         <div class="emergency-info">
-          <span class="emergency-icon" aria-hidden="true">☎</span>
+          <span class="emergency-icon" aria-hidden="true">${icon.phone}</span>
           <span class="emergency-text"><strong>${t('contactCareTeamBtn')}:</strong> ${profile.assignedClinic} · ${profile.careCoordinator}</span>
         </div>
         <a class="button emergency-call-btn" href="tel:${profile.careTeamPhone}">
-          <span aria-hidden="true">📞</span> ${t('callNow')}
+          <span aria-hidden="true">${icon.phone}</span> ${t('callNow')}
         </a>
       </div>
     </aside>
@@ -265,12 +291,12 @@ export function companionPage() {
           </div>
 
           <div class="watch-status">
-            <span class="watch-icon" aria-hidden="true">⌚</span>
+            <span class="watch-icon" aria-hidden="true">${icon.watch}</span>
             <span class="watch-detail">${profile.device.model}</span>
             <span class="status-dot ${profile.device.strapSnug ? 'dot-good' : 'dot-warn'}" aria-hidden="true"></span>
             <span>${profile.device.strapSnug ? t('strapSnug') : t('strapLoose')}</span>
-            <span class="battery-tag">⚡ ${t('battery', { percent: profile.device.battery })}</span>
-            <span class="sync-tag">🕒 ${t('lastSync', { time: profile.device.lastSync })}</span>
+            <span class="battery-tag">${icon.battery} ${t('battery', { percent: profile.device.battery })}</span>
+            <span class="sync-tag">${icon.clock} ${t('lastSync', { time: profile.device.lastSync })}</span>
           </div>
         </div>
       </section>
@@ -364,7 +390,7 @@ function renderHomeTab(profile, evalResult, stateMeta) {
             evalResult.tier === 'red' || evalResult.state === COMPANION_STATES.CONTACT_CARE_TEAM
               ? `
             <a class="button emergency-action-btn" href="tel:${profile.careTeamPhone}">
-              <span aria-hidden="true">📞</span> ${t('callNow')}
+              <span aria-hidden="true">${icon.phone}</span> ${t('callNow')}
             </a>
           `
               : ''
@@ -576,11 +602,11 @@ function renderReadingsTab(profile) {
  */
 function renderCheckInTab(profile) {
   const questions = [
-    { id: 'q1', text: t('checkin.q1'), icon: '🌡️' },
-    { id: 'q2', text: t('checkin.q2'), icon: '🫁' },
-    { id: 'q3', text: t('checkin.q3'), icon: '🥣' },
-    { id: 'q4', text: t('checkin.q4'), icon: '🩹' },
-    { id: 'q5', text: t('checkin.q5'), icon: '🛌' },
+    { id: 'q1', text: t('checkin.q1'), icon: icon.thermometer },
+    { id: 'q2', text: t('checkin.q2'), icon: icon.lungs },
+    { id: 'q3', text: t('checkin.q3'), icon: icon.appetite },
+    { id: 'q4', text: t('checkin.q4'), icon: icon.symptoms },
+    { id: 'q5', text: t('checkin.q5'), icon: icon.sleep },
   ];
 
   const hasFeedback = checkInFeedback !== null;
@@ -598,7 +624,7 @@ function renderCheckInTab(profile) {
           hasFeedback
             ? `
           <div class="checkin-result-banner banner ${checkInFeedback.alertStaff ? 'banner-alert' : 'banner-success'}" role="alert">
-            <span class="banner-icon">${checkInFeedback.alertStaff ? '🔔' : '✓'}</span>
+            <span class="banner-icon">${checkInFeedback.alertStaff ? icon.bell : '✓'}</span>
             <div>
               <strong>${checkInFeedback.alertStaff ? 'Care Team Notified' : 'Recorded'}</strong>
               <p>${currentLang === 'sw' ? checkInFeedback.messageSw : checkInFeedback.messageEn}</p>
@@ -705,7 +731,7 @@ function renderContactTab(profile) {
             <p class="muted">Toll-free across all Kenyan networks (Safaricom, Airtel, Telkom). Free of charge.</p>
           </div>
           <a class="button emergency-call-big-btn" href="tel:${profile.careTeamPhone}">
-            <span aria-hidden="true">📞</span> ${t('callNow')}
+            <span aria-hidden="true">${icon.phone}</span> ${t('callNow')}
           </a>
         </div>
 

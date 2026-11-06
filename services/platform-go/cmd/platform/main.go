@@ -433,6 +433,9 @@ func unauthenticated(w http.ResponseWriter, r *http.Request) {
 }
 func address() string {
 	if value := os.Getenv("GM_HTTP_ADDR"); value != "" {
+		if !strings.HasPrefix(value, ":") && !strings.Contains(value, ":") {
+			return ":" + value
+		}
 		return value
 	}
 	return ":8083"

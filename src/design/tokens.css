@@ -1188,9 +1188,33 @@
   }
 
   /* ========================================================================
+  /* ========================================================================
      GM Patient Companion Dashboard Styles
      ======================================================================== */
 
+  /* ── Inline SVG icons (ui-icon class) ──────────────────────────────────── */
+  .ui-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  .emergency-icon .ui-icon,
+  .banner-icon .ui-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .emergency-call-btn .ui-icon,
+  .emergency-call-big-btn .ui-icon,
+  .emergency-action-btn .ui-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ── Header & brand row ─────────────────────────────────────────────────── */
   .companion-header {
     background: var(--deep);
     color: var(--white);
@@ -1214,15 +1238,16 @@
 
   .companion-tag {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    background: rgb(255 255 255 / 16%);
+    letter-spacing: 0.1em;
+    background: rgb(255 255 255 / 14%);
     color: var(--pale);
     padding: 3px 8px;
-    border-radius: 4px;
+    border-radius: 3px;
   }
 
+  /* ── Control bar (persona, language, text-size) ─────────────────────────── */
   .companion-controls {
     display: flex;
     align-items: center;
@@ -1234,10 +1259,11 @@
     background: #082d22;
     color: var(--white);
     border: 1px solid rgb(255 255 255 / 25%);
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 6px 10px;
+    border-radius: 4px;
     font-size: 13px;
     cursor: pointer;
+    max-width: 240px;
   }
 
   .select-pill:focus-visible {
@@ -1250,23 +1276,27 @@
     align-items: center;
     background: rgb(0 0 0 / 20%);
     padding: 2px;
-    border-radius: 20px;
+    border-radius: 4px;
+    gap: 1px;
   }
 
   .pill-btn {
     background: transparent;
     border: none;
-    color: rgb(255 255 255 / 80%);
-    font-size: 12px;
+    color: rgb(255 255 255 / 72%);
+    font-family: var(--mono);
+    font-size: 11px;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 16px;
+    letter-spacing: 0.04em;
+    padding: 5px 10px;
+    border-radius: 3px;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.12s ease, color 0.12s ease;
   }
 
   .pill-btn:hover {
     color: var(--white);
+    background: rgb(255 255 255 / 8%);
   }
 
   .pill-btn.active {
@@ -1274,9 +1304,10 @@
     color: var(--deep);
   }
 
+  /* ── Persistent care-team emergency strip ───────────────────────────────── */
   .emergency-strip {
     background: var(--pale);
-    border-bottom: 1px solid var(--grey-300);
+    border-bottom: 1px solid #c8ddd1;
     color: var(--deep);
     transition: background 0.2s ease;
   }
@@ -1291,7 +1322,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-block: 8px;
+    padding-block: 9px;
     gap: 16px;
   }
 
@@ -1299,25 +1330,31 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 500;
   }
 
   .emergency-call-btn {
     background: var(--red);
     color: var(--white);
-    padding: 6px 16px;
-    border-radius: 20px;
+    padding: 7px 16px;
+    border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     white-space: nowrap;
+    border: none;
   }
 
   .emergency-call-btn:hover {
-    background: #872323;
+    background: #8b2424;
     color: var(--white);
   }
 
+  /* ── Main container & text-size modes ───────────────────────────────────── */
   .companion-container {
     min-height: calc(100vh - 180px);
     background: var(--surface);
@@ -1325,13 +1362,16 @@
   }
 
   .companion-container.size-large {
-    font-size: 18px;
+    --companion-body: 17px;
+    font-size: 17px;
   }
 
   .companion-container.size-extra {
-    font-size: 20px;
+    --companion-body: 19px;
+    font-size: 19px;
   }
 
+  /* ── Patient identity bar ───────────────────────────────────────────────── */
   .patient-id-bar {
     background: var(--white);
     border-bottom: 1px solid var(--grey-200);
@@ -1357,19 +1397,23 @@
   .patient-pill {
     font-family: var(--mono);
     font-weight: 600;
-    background: var(--grey-200);
+    background: var(--grey-100);
+    border: 1px solid var(--grey-300);
     padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+    border-radius: 3px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
   }
 
   .day-badge {
     font-weight: 600;
     color: var(--mid);
+    font-size: 13px;
   }
 
   .site-text {
     color: var(--grey-600);
+    font-size: 13px;
   }
 
   .watch-status {
@@ -1377,13 +1421,15 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    font-size: 13px;
   }
 
   .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     display: inline-block;
+    flex-shrink: 0;
   }
 
   .dot-good {
@@ -1396,70 +1442,86 @@
 
   .battery-tag,
   .sync-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 12px;
     color: var(--grey-600);
   }
 
+  /* ── Tab navigation ─────────────────────────────────────────────────────── */
   .companion-tabs-nav {
     display: flex;
-    gap: 6px;
+    gap: 0;
     border-bottom: 2px solid var(--grey-200);
     margin-top: 20px;
     overflow-x: auto;
     padding-bottom: 0;
+    scrollbar-width: none;
+  }
+
+  .companion-tabs-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .tab-btn {
     background: transparent;
     border: none;
-    border-bottom: 3px solid transparent;
-    font-size: 15px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-family: var(--sans);
+    font-size: 13px;
     font-weight: 500;
-    padding: 10px 16px;
+    letter-spacing: 0.01em;
+    padding: 11px 18px;
     cursor: pointer;
     color: var(--grey-600);
     white-space: nowrap;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    transition: color 0.12s ease, border-color 0.12s ease;
   }
 
   .tab-btn:hover {
     color: var(--deep);
+    background: var(--mist);
   }
 
   .tab-btn.active {
     color: var(--deep);
     font-weight: 600;
     border-bottom-color: var(--mid);
+    background: transparent;
   }
 
   .tab-btn:focus-visible {
     outline: 2px solid var(--mid);
+    outline-offset: -2px;
   }
 
   .companion-content-area {
-    padding-top: 24px;
+    padding-top: 28px;
   }
 
+  /* ── State card (hero status panel) ─────────────────────────────────────── */
   .state-card {
-    border-radius: 8px;
-    padding: 32px;
-    margin-bottom: 28px;
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
     transition: background 0.25s ease, border-color 0.25s ease;
   }
 
   .state-card.state-green {
     background: var(--mist);
-    border: 1px solid #c8e4d6;
+    border: 1px solid #c0dece;
   }
 
   .state-card.state-amber {
     background: #fef9ee;
-    border: 1px solid #f6deb0;
+    border: 1px solid #edce8a;
   }
 
   .state-card.state-red {
     background: #fdf0ee;
-    border: 2px solid #eab3ae;
+    border: 2px solid #d9908a;
   }
 
   .state-card.state-sensor-warn {
@@ -1470,8 +1532,9 @@
   .state-header-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
+    margin-bottom: 14px;
   }
 
   .state-badge-wrapper {
@@ -1482,6 +1545,7 @@
 
   .state-glyph {
     color: var(--mid);
+    flex-shrink: 0;
   }
 
   .state-amber .state-glyph {
@@ -1492,20 +1556,23 @@
     color: var(--red);
   }
 
+  /* State title: clinical — compact serif, not giant display heading */
   .state-title {
     font-family: var(--serif);
-    font-size: 1.6rem;
+    font-size: 1.25rem;
     font-weight: 500;
+    line-height: 1.2;
   }
 
   .state-pill {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 3px 8px;
-    border-radius: 12px;
+    letter-spacing: 0.07em;
+    padding: 2px 7px;
+    border-radius: 3px;
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .state-green .state-pill {
@@ -1515,7 +1582,7 @@
 
   .state-amber .state-pill {
     background: #fdf0d5;
-    color: var(--amber);
+    color: #906010;
   }
 
   .state-red .state-pill {
@@ -1525,27 +1592,35 @@
 
   .state-day {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
     color: var(--grey-600);
+    white-space: nowrap;
   }
 
+  /*
+   * Lead sentence: the core patient-facing message.
+   * Use a readable display size — not a hero banner.
+   * Newsreader at 1.9–2.4rem is calm and legible at large text sizes.
+   */
   .state-lead-sentence {
     font-family: var(--serif);
-    font-size: clamp(1.8rem, 3.2vw, 2.75rem);
-    line-height: 1.15;
-    margin: 16px 0 10px;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.25;
+    margin: 0 0 10px;
+    max-width: 720px;
   }
 
   .state-action-desc {
-    font-size: 1.125rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--grey-700);
-    max-width: 680px;
-    margin-bottom: 24px;
+    max-width: 640px;
+    margin-bottom: 20px;
   }
 
   .state-actions-bar {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
     align-items: center;
   }
@@ -1553,57 +1628,70 @@
   .emergency-action-btn {
     background: var(--red) !important;
     color: var(--white) !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
   }
 
   .emergency-action-btn:hover {
-    background: #872323 !important;
+    background: #8b2424 !important;
   }
 
+  /* ── Home tab: two-column content grid ──────────────────────────────────── */
   .home-grid-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
+  /* ── Progress tracker ───────────────────────────────────────────────────── */
   .progress-track-wrapper {
-    margin-block: 16px;
+    margin-block: 14px;
   }
 
   .progress-bar-bg {
     background: var(--grey-200);
-    height: 8px;
-    border-radius: 4px;
+    height: 6px;
+    border-radius: 3px;
     overflow: hidden;
   }
 
   .progress-bar-fill {
     background: var(--mid);
     height: 100%;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: width 0.3s ease;
   }
 
   .progress-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 11px;
+    font-family: var(--mono);
     color: var(--grey-600);
     margin-top: 6px;
   }
 
+  /* ── Pathway steps ──────────────────────────────────────────────────────── */
   .happening-steps {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-    font-size: 14px;
+    gap: 8px;
+    margin-top: 18px;
   }
 
   .step-bullet {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-size: 13px;
     color: var(--grey-500);
+    padding: 6px 0;
+    border-top: 1px solid var(--grey-100);
+  }
+
+  .step-bullet:first-child {
+    border-top: none;
   }
 
   .bullet-done {
@@ -1618,79 +1706,105 @@
 
   .bullet-num {
     display: inline-block;
-    width: 16px;
+    width: 18px;
     text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    flex-shrink: 0;
   }
 
+  /* ── Smartwatch photo & mini-vitals summary ──────────────────────────────── */
   .watch-photo-wrap {
-    height: 150px;
+    height: 140px;
     overflow: hidden;
-    border-radius: 6px;
-    margin-block: 14px;
+    border-radius: 4px;
+    margin-block: 12px;
+    background: var(--grey-100);
   }
 
   .companion-watch-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 
   .mini-vitals-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
   }
 
+  /*
+   * Mini-vital row: label on the left, value on the right, note below.
+   * Use grid so the note spans both columns cleanly.
+   */
   .mini-vital-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    padding: 8px 0;
     border-bottom: 1px solid var(--grey-100);
-    padding-bottom: 8px;
-    font-size: 14px;
-    flex-wrap: wrap;
-    gap: 8px;
+    font-size: 13px;
+  }
+
+  .mini-vital-item:last-child {
+    border-bottom: none;
   }
 
   .mini-vital-label {
     font-weight: 500;
+    color: var(--grey-700);
+    align-self: center;
   }
 
   .mini-vital-value {
     font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
     color: var(--deep);
+    text-align: right;
+    align-self: center;
   }
 
   .mini-vital-status {
-    font-size: 12px;
+    grid-column: 1 / -1;
+    font-size: 11px;
     color: var(--grey-500);
-    width: 100%;
+    margin-top: 2px;
   }
 
+  /* ── Device spec bar (readings tab header) ──────────────────────────────── */
   .device-spec-bar {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: wrap;
-    font-size: 13px;
+    font-size: 12px;
     background: var(--pale);
     padding: 10px 16px;
-    border-radius: 6px;
-    margin-top: 16px;
+    border-radius: 4px;
+    margin-top: 14px;
+    color: var(--grey-700);
   }
 
+  .device-spec-bar strong {
+    color: var(--deep);
+  }
+
+  /* ── Vitals chart cards ──────────────────────────────────────────────────── */
   .vitals-charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-    margin-top: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
   }
 
   .vital-card {
     background: var(--white);
-    border: 1px solid var(--grey-300);
-    border-radius: 8px;
+    border: 1px solid var(--grey-200);
+    border-radius: 6px;
     padding: 20px;
-    box-shadow: var(--shadow);
   }
 
   .vital-head {
@@ -1700,37 +1814,54 @@
     gap: 12px;
   }
 
+  /* h3 inside a vital card should not use the global 1.75rem serif */
+  .vital-card h3 {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--grey-700);
+    margin-bottom: 4px;
+  }
+
   .vital-reading {
     display: flex;
     align-items: baseline;
     gap: 4px;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   .vital-number {
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-family: var(--mono);
     font-weight: 600;
     color: var(--deep);
+    line-height: 1;
   }
 
   .vital-unit {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: var(--grey-600);
   }
 
+  .vital-baseline-meta {
+    padding-top: 4px;
+  }
+
   .baseline-tag {
-    font-size: 11px;
+    font-size: 10px;
     background: var(--pale);
     color: var(--mid);
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 3px 7px;
+    border-radius: 3px;
     font-family: var(--mono);
     display: inline-block;
+    white-space: nowrap;
   }
 
   .chart-wrapper {
-    margin-block: 10px;
+    margin-block: 12px;
   }
 
   .vital-svg {
@@ -1744,21 +1875,22 @@
     gap: 14px;
     font-size: 11px;
     color: var(--grey-600);
-    margin-top: 8px;
+    margin-top: 6px;
     flex-wrap: wrap;
   }
 
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
   }
 
   .legend-swatch {
     display: inline-block;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 2px;
+    flex-shrink: 0;
   }
 
   .band-swatch {
@@ -1773,67 +1905,103 @@
   .chart-caption-notice {
     display: flex;
     gap: 8px;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.5;
     color: var(--grey-600);
     background: var(--surface);
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
     align-items: flex-start;
+    border-left: 2px solid var(--grey-300);
   }
 
+  /* ── Check-in form ───────────────────────────────────────────────────────── */
   .checkin-card {
-    max-width: 760px;
+    max-width: 720px;
     margin: 0 auto;
   }
 
   .questions-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 
   .question-item {
     border: 1px solid var(--grey-200);
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 6px;
+    padding: 16px 18px;
     background: var(--white);
     margin: 0;
   }
 
+  /*
+   * Question legend: readable body-text size, not h3-scale.
+   * Practitioners and patients read this as a form label.
+   */
   .question-legend {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-family: var(--sans);
+    font-size: 14px;
     font-weight: 600;
-    font-size: 1.05rem;
-    padding: 0 4px;
+    line-height: 1.4;
+    color: var(--deep);
+    padding: 0;
+    width: 100%;
+  }
+
+  .q-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--mid);
+    width: 20px;
+  }
+
+  .q-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--grey-500);
+    flex-shrink: 0;
+  }
+
+  .q-text {
+    flex: 1;
   }
 
   .options-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 12px;
     flex-wrap: wrap;
   }
 
   .option-pill {
     flex: 1;
-    min-width: 90px;
+    min-width: 80px;
     border: 1px solid var(--grey-300);
-    padding: 10px 14px;
-    border-radius: 24px;
+    padding: 10px 12px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: all 0.15s ease;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.12s ease;
     user-select: none;
+    text-align: center;
   }
 
   .option-pill input {
-    margin-right: 6px;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
 
   .option-pill:hover {
@@ -1843,6 +2011,7 @@
 
   .option-pill.selected {
     border-color: var(--mid);
+    border-width: 2px;
     background: var(--pale);
     color: var(--deep);
     font-weight: 600;
@@ -1851,41 +2020,53 @@
   .checkin-submit-bar {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-top: 24px;
+    gap: 14px;
+    margin-top: 20px;
     flex-wrap: wrap;
   }
 
+  .checkin-submit-bar .muted {
+    font-size: 12px;
+    max-width: 400px;
+  }
+
+  /* ── Check-in result banner ─────────────────────────────────────────────── */
   .checkin-result-banner {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 14px 18px;
-    border-radius: 6px;
+    border-radius: 4px;
     margin-block: 16px;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   .checkin-result-banner.banner-success {
     background: var(--pale);
-    border-left: 4px solid var(--bright);
+    border-left: 3px solid var(--bright);
     color: var(--deep);
   }
 
   .checkin-result-banner.banner-alert {
     background: #fce8e6;
-    border-left: 4px solid var(--red);
-    color: var(--red);
+    border-left: 3px solid var(--red);
+    color: #7a1f1f;
   }
 
   .banner-icon {
-    font-size: 20px;
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
+    flex-shrink: 0;
   }
 
+  /* ── Contact tab: call card ─────────────────────────────────────────────── */
   .call-action-card {
     background: var(--deep);
     color: var(--white);
-    padding: 28px;
-    border-radius: 8px;
+    padding: 24px 28px;
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1896,71 +2077,95 @@
 
   .call-badge {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    background: rgb(255 255 255 / 15%);
-    padding: 3px 8px;
-    border-radius: 4px;
+    letter-spacing: 0.08em;
+    background: rgb(255 255 255 / 14%);
+    padding: 2px 8px;
+    border-radius: 3px;
     color: var(--pale);
   }
 
   .call-card-content h2 {
     color: var(--white);
-    margin: 6px 0 2px;
-    font-size: 1.8rem;
+    margin: 6px 0 4px;
+    font-size: 1.5rem;
+    font-family: var(--serif);
+    font-weight: 400;
   }
 
   .call-number {
     font-family: var(--mono);
-    font-size: 2.2rem;
-    font-weight: 600;
+    font-size: 2rem;
+    font-weight: 700;
     color: var(--bright);
-    margin: 4px 0 8px;
+    margin: 4px 0 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .call-action-card .muted {
+    font-size: 13px;
+    color: rgb(255 255 255 / 65%);
+    max-width: 340px;
   }
 
   .emergency-call-big-btn {
     background: var(--bright) !important;
     color: var(--deep) !important;
-    font-size: 1.1rem;
-    font-weight: 600;
-    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 14px 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
   }
 
   .emergency-call-big-btn:hover {
-    background: #23855a !important;
+    background: #24865a !important;
     color: var(--white) !important;
   }
 
   .contact-grid-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
   .facility-name {
-    font-size: 1.15rem;
-    margin: 8px 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 6px 0 4px;
   }
 
   .facility-coordinator,
   .facility-hours {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--grey-600);
     margin-top: 4px;
+    line-height: 1.5;
   }
 
   .callback-card textarea {
     width: 100%;
     border: 1px solid var(--grey-300);
     border-radius: 4px;
-    padding: 10px;
+    padding: 10px 12px;
     font-family: inherit;
     font-size: 14px;
+    line-height: 1.5;
     margin-top: 8px;
+    resize: vertical;
   }
 
+  .callback-card textarea:focus-visible {
+    outline: 2px solid var(--mid);
+    outline-offset: 0;
+  }
+
+  /* ── SMS mockup ──────────────────────────────────────────────────────────── */
   .sms-phone-mockup {
-    max-width: 340px;
+    max-width: 320px;
     margin: 24px auto;
     border: 10px solid #2b3530;
     border-radius: 32px;
@@ -1980,13 +2185,82 @@
   }
 
   .phone-header {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     text-align: center;
     color: var(--grey-600);
     border-bottom: 1px solid var(--grey-300);
     padding-bottom: 8px;
     font-family: var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sms-bubble {
+    background: var(--white);
+    border-radius: 12px 12px 12px 2px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    border: 1px solid var(--grey-300);
+  }
+
+  .sms-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .sms-time {
+    font-size: 10px;
+    color: var(--grey-500);
+    font-family: var(--mono);
+  }
+
+  .phone-reply-bar {
+    font-size: 11px;
+    color: var(--grey-600);
+    background: var(--white);
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-top: 16px;
+    text-align: center;
+    border: 1px solid var(--grey-300);
+  }
+
+  /* ── Settings tab ────────────────────────────────────────────────────────── */
+  .privacy-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .withdrawal-card {
+    border-left: 4px solid var(--amber);
+    margin-top: 20px;
+  }
+
+  /* ── Companion footer ────────────────────────────────────────────────────── */
+  .companion-footer {
+    background: var(--white);
+    border-top: 1px solid var(--grey-200);
+    padding-block: 20px;
+    font-size: 12px;
+    color: var(--grey-600);
+  }
+
+  .footer-content-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .footer-content-row span:first-child {
+    font-weight: 500;
+    color: var(--grey-700);
   }
 
   .sms-bubble {
